@@ -1,0 +1,4 @@
+package-lock.json
+
+# Docs keep compact tables, like the API roadmap
+*.md
