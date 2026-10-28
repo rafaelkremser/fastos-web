@@ -1,4 +1,21 @@
-import { getTenantSlug } from './tenant'
+import { buildAppUrl, getTenantSlug } from './tenant'
+
+describe('buildAppUrl', () => {
+  it('should keep the protocol and the port', () => {
+    expect(
+      buildAppUrl('loja-a.localhost', '/sign-in', {
+        protocol: 'http:',
+        port: '5173',
+      }),
+    ).toBe('http://loja-a.localhost:5173/sign-in')
+  })
+
+  it('should leave the port out when there is none', () => {
+    expect(
+      buildAppUrl('fastos.com.br', '/', { protocol: 'https:', port: '' }),
+    ).toBe('https://fastos.com.br/')
+  })
+})
 
 describe('getTenantSlug', () => {
   it('should read the store from the subdomain', () => {

@@ -22,3 +22,20 @@ export function getTenantSlug(hostname: string, appHost: string) {
 export function getCurrentTenantSlug() {
   return getTenantSlug(window.location.hostname, env.VITE_APP_HOST)
 }
+
+// Address on another host of the app, keeping the current protocol and port
+export function buildAppUrl(
+  host: string,
+  path: string,
+  { protocol, port }: Pick<Location, 'protocol' | 'port'>,
+) {
+  return `${protocol}//${host}${port ? `:${port}` : ''}${path}`
+}
+
+export function getTenantUrl(slug: string, path = '/') {
+  return buildAppUrl(`${slug}.${env.VITE_APP_HOST}`, path, window.location)
+}
+
+export function getPublicSiteUrl(path = '/') {
+  return buildAppUrl(env.VITE_APP_HOST, path, window.location)
+}

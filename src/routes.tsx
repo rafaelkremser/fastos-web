@@ -1,7 +1,8 @@
-import { createBrowserRouter, type RouteObject } from 'react-router'
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
 
 import { NotFound } from './pages/404'
 import { Dashboard } from './pages/app/dashboard/dashboard'
+import { FindStore } from './pages/auth/find-store'
 import { SignIn } from './pages/auth/sign-in'
 import { SignUp } from './pages/auth/sign-up'
 import { ErrorPage } from './pages/error'
@@ -14,7 +15,11 @@ const publicRoutes: RouteObject[] = [
     path: '/',
     element: <AuthLayout />,
     errorElement: <ErrorPage />,
-    children: [{ index: true, element: <SignUp /> }],
+    children: [
+      { index: true, element: <Navigate to="/sign-up" replace /> },
+      { path: 'sign-up', element: <SignUp /> },
+      { path: 'sign-in', element: <FindStore /> },
+    ],
   },
   { path: '*', element: <NotFound /> },
 ]
