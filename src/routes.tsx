@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
 
 import { NotFound } from './pages/404'
+import { CustomerDetails } from './pages/app/customers/customer-details'
+import { Customers } from './pages/app/customers/customers'
 import { Dashboard } from './pages/app/dashboard/dashboard'
 import { FindStore } from './pages/auth/find-store'
 import { SignIn } from './pages/auth/sign-in'
@@ -30,7 +32,11 @@ const tenantRoutes: RouteObject[] = [
     path: '/',
     element: <AppLayout />,
     errorElement: <ErrorPage />,
-    children: [{ index: true, element: <Dashboard /> }],
+    children: [
+      { index: true, element: <Dashboard /> },
+      { path: 'customers', element: <Customers /> },
+      { path: 'customers/:customerId', element: <CustomerDetails /> },
+    ],
   },
   {
     path: '/',

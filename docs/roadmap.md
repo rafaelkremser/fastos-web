@@ -14,8 +14,8 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 |---|---|---|
 | F0 | Base do projeto: Vite, Tailwind, shadcn, React Router, testes, lint, variáveis de ambiente, layouts e a loja descoberta pelo subdomínio | Feito (primeiro commit) |
 | F1 | Cadastro da loja, login pelo subdomínio, renovação automática do token, sair e menu com o usuário e a loja | Feito ([PR #1](https://github.com/rafaelkremser/fastos-web/pull/1)) |
-| F2 | Clientes e aparelhos: lista com busca, cadastro, edição e exclusão conforme o papel | **Próximo** (antes, o A1 na API) |
-| F3 | Ordens de serviço: lista com filtros, abertura, detalhes, status, itens, histórico, edição e técnico | Pendente |
+| F2 | Clientes e aparelhos: lista com busca, cadastro, edição e exclusão conforme o papel | Feito ([PR #3](https://github.com/rafaelkremser/fastos-web/pull/3)) |
+| F3 | Ordens de serviço: lista com filtros, abertura, detalhes, status, itens, histórico, edição e técnico | **Próximo** (antes, o A2 e o A3 na API) |
 | F4 | Equipe: listar e criar usuários | Pendente |
 | F5 | Dashboard | Pendente |
 | F6 | Testes de ponta a ponta (Playwright) e deploy | Pendente |
@@ -48,21 +48,33 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 - **Painel:** sem sessão, manda para o login. O menu da conta mostra a loja, o usuário e o papel, e tem o "Sair".
 - **Testado contra a API real,** num branch temporário do Neon: cadastro, senha errada, login, recarga com uma única renovação, sair, token de renovação recusado, acesso pelo site público e endereço repetido. Com a aprovação: "Cadastro recebido", aviso de loja pendente no login, liberação pelo comando da API e login depois de liberada.
 
+### F2: clientes e aparelhos
+
+- **Lista de clientes** (`/customers`): busca pelo nome e página na URL, então dá para voltar e compartilhar o link; "página X de Y" com o total que o A1 trouxe; num celular, a tabela mostra só nome e telefone.
+- **Cadastro e edição de cliente** num diálogo: só nome e telefone são obrigatórios, e o telefone precisa do DDD. Depois do cadastro, a tela vai para a página do cliente, onde se cadastra o aparelho.
+- **Página do cliente** (`/customers/:id`): dados, endereço montado num texto só, e a lista de aparelhos com cadastro, edição e exclusão.
+- **Exclusão** com confirmação, só para dono e administrador (o botão nem aparece para técnico e atendente). Cliente ou aparelho com OS não pode ser excluído, e a tela explica o motivo; excluir um cliente leva os aparelhos dele junto (A6).
+- **Cabeçalho:** link "Clientes", que continua marcado nas páginas de dentro; num celular, os links mostram só o ícone.
+- **Testado contra a API real,** num branch temporário do Neon, com 24 clientes: duas páginas, busca, cadastro com validação do DDD, aparelho com tipo, edição, exclusão de aparelho e de cliente, e os dois 409.
+
 ## Mudanças na API
 
 | # | Mudança | Precisa para | Status |
 |---|---|---|---|
-| A1 | Total de registros nas listas de clientes, aparelhos e OS | F2: paginação com "página X de Y" | Pendente |
-| A2 | Lista de OS com o nome do cliente e a descrição do aparelho; hoje vêm só os IDs | F3: sem isso, a tabela faria uma chamada extra por linha | Pendente |
+| A1 | Total de registros nas listas de clientes, aparelhos e OS | F2: paginação com "página X de Y" | Feito ([fastos-api #14](https://github.com/rafaelkremser/fastos-api/pull/14)) |
+| A2 | Lista de OS com o nome do cliente e a descrição do aparelho; hoje vêm só os IDs. Validar também o filtro de status, que hoje dá 500 com um valor desconhecido | F3: sem isso, a tabela faria uma chamada extra por linha | Pendente |
 | A3 | Rota para listar os usuários da loja | F3: escolher o técnico; F4: tela da equipe | Pendente |
 | A4 | Rotas de métricas | F5 | Pendente |
 | A5 | Código de erro nas respostas, para o front não depender do texto da mensagem | Opcional: hoje o cadastro separa "endereço em uso" de "e-mail em uso" pelo texto do 409 | Pendente |
+| A6 | Excluir cliente ou aparelho com OS responde 409, e não 500; excluir cliente sem OS leva os aparelhos junto | F2: sem isso, excluir quase qualquer cliente dava erro | Feito ([fastos-api #15](https://github.com/rafaelkremser/fastos-api/pull/15)) |
 
 ## Débitos conhecidos
 
 - **O tema é guardado por subdomínio:** cada loja lembra o seu.
 - **O tema pode piscar no primeiro carregamento:** a página abre no tema claro por um instante antes de aplicar o escuro.
-- **O bundle tem 580 kB (183 kB comprimido),** acima do aviso do Vite. A saída é dividir o código por rota, quando houver telas.
+- **O bundle tem 770 kB (240 kB comprimido)** depois do F2, acima do aviso do Vite. Dividir o código por rota entra no F3.
+- **Editar um cliente não confere telefone repetido:** a API só verifica no cadastro, então a edição aceita o telefone de outro cliente.
+- **Telefones salvos por outros meios** com pontuação, como "(11) 98765-4321", não batem com a verificação de repetido, que compara o texto. O front sempre envia só os números.
 - **O cadastro separa os dois 409 pelo texto da mensagem da API** ("address"). Se a mensagem mudar, o erro de endereço passa a aparecer no campo de e-mail. O A5 resolve.
 - **O acesso pelo site público não sabe se a loja existe:** um endereço digitado errado abre o login de uma loja que não existe, e a resposta é "e-mail ou senha incorretos". A API não tem rota pública que diga se uma loja existe.
 - **Os tokens ficam no `localStorage`,** então um script injetado no site (XSS) conseguiria lê-los. É o mesmo débito do roadmap da API; a alternativa é o token de renovação num cookie que o JavaScript não lê.
@@ -87,3 +99,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | 2026-10-27 | Login do site público pede o endereço da loja e leva ao subdomínio | O login de verdade precisa do subdomínio, e a API não diz quais lojas existem | Lista de lojas; descobrir a loja pelo e-mail |
 | 2026-10-27 | O cadastro decide pela resposta da API: loja inativa mostra "Cadastro recebido", loja ativa vai para o login | Funciona com a API nos dois modos (`TENANT_AUTO_APPROVAL`), sem configuração no front | Variável própria no front |
 | 2026-10-27 | Testes simulam a API com um adaptador falso do axios e `vi.mock` nas funções de `src/api` | Cobre a renovação e as telas sem dependência nova; o MSW fica para quando os testes de ponta a ponta (F6) precisarem | MSW já no F1 |
+| 2026-10-28 | Telefone enviado só com números e mostrado formatado; com DDD obrigatório | A API compara o texto para achar telefone repetido; "(11) 98765-4321" e "11987654321" seriam dois clientes | Guardar como foi digitado; máscara no campo |
+| 2026-10-28 | Cliente em página própria, com os aparelhos dentro; cadastro e edição em diálogos | O aparelho só existe para o cliente, e a página é o ponto de partida da OS no F3 | Tudo em diálogos sobre a lista |
+| 2026-10-28 | Botões de excluir escondidos para quem não pode (técnico e atendente) | Evita oferecer o que a API vai recusar; a API continua conferindo | Mostrar e tratar o 403 |
+| 2026-10-28 | Tipos de aparelho numa lista do front (Celular, Tablet, Notebook...), com o código salvo em inglês | A API aceita qualquer texto; a lista padroniza sem mudar a API, e um tipo desconhecido aparece como foi salvo | Tipo como enum na API |
