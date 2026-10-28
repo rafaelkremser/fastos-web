@@ -24,4 +24,23 @@ describe('NavLink', () => {
       'true',
     )
   })
+
+  it('should keep a section highlighted on its inner pages', () => {
+    const wrapper = render(
+      <>
+        <NavLink to="/">Início</NavLink>
+        <NavLink to="/customers">Clientes</NavLink>
+      </>,
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={['/customers/123']}>
+            {children}
+          </MemoryRouter>
+        ),
+      },
+    )
+
+    expect(wrapper.getByText('Início').dataset.current).toEqual('false')
+    expect(wrapper.getByText('Clientes').dataset.current).toEqual('true')
+  })
 })

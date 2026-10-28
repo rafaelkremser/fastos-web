@@ -2,7 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, LogOut } from 'lucide-react'
 
 import { getTenant } from '@/api/get-tenant'
-import { getUser, type UserRole } from '@/api/get-user'
+import type { UserRole } from '@/api/get-user'
+import { useCurrentUser } from '@/hooks/use-current-user'
 import { endSession } from '@/lib/session'
 
 import { Button } from './ui/button'
@@ -32,11 +33,7 @@ export function AccountMenu() {
     staleTime: Infinity,
   })
 
-  const { data: user, isLoading: isLoadingUser } = useQuery({
-    queryKey: ['user'],
-    queryFn: getUser,
-    staleTime: Infinity,
-  })
+  const { data: user, isLoading: isLoadingUser } = useCurrentUser()
 
   // The API keeps no session to close, so signing out is forgetting the
   // tokens. The panel then sends the person to the sign-in page
@@ -50,9 +47,15 @@ export function AccountMenu() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center gap-2 select-none"
+          className="flex min-w-0 items-center gap-2 select-none"
         >
-          {isLoadingTenant ? <Skeleton className="h-4 w-40" /> : tenant?.name}
+          {isLoadingTenant ? (
+            <Skeleton className="h-4 w-24 sm:w-40" />
+          ) : (
+            <span className="max-w-32 truncate sm:max-w-60">
+              {tenant?.name}
+            </span>
+          )}
           <ChevronDown className="size-4" />
         </Button>
       </DropdownMenuTrigger>
