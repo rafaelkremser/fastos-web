@@ -67,8 +67,12 @@ describe('Sign Up', () => {
     expect(registerTenant).not.toHaveBeenCalled()
   })
 
-  it('should send the store and its owner', async () => {
-    vi.mocked(registerTenant).mockResolvedValue()
+  it('should send the store and its owner, and say it waits for approval', async () => {
+    vi.mocked(registerTenant).mockResolvedValue({
+      name: 'Loja A',
+      slug: 'loja-a',
+      isActive: false,
+    })
     const assign = vi
       .spyOn(window.location, 'assign')
       .mockImplementation(() => {})
@@ -89,6 +93,23 @@ describe('Sign Up', () => {
       // TanStack Query passes its own context as the second argument
       expect.anything(),
     )
+    expect(await screen.findByText('Cadastro recebido!')).toBeInTheDocument()
+    expect(assign).not.toHaveBeenCalled()
+  })
+
+  it("should send the owner to the store's sign-in when approval is automatic", async () => {
+    vi.mocked(registerTenant).mockResolvedValue({
+      name: 'Loja A',
+      slug: 'loja-a',
+      isActive: true,
+    })
+    const assign = vi
+      .spyOn(window.location, 'assign')
+      .mockImplementation(() => {})
+    renderWithProviders(<SignUp />)
+
+    await fillForm(validForm)
+
     expect(assign).toHaveBeenCalledWith(
       expect.stringMatching(/\/\/loja-a\.localhost(:\d+)?\/sign-in\?created$/),
     )

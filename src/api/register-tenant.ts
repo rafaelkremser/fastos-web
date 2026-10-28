@@ -10,6 +10,17 @@ export interface RegisterTenantBody {
   ownerPassword: string
 }
 
+interface RegisterTenantResponse {
+  tenant: {
+    name: string
+    slug: string
+    // False while the store waits for approval
+    isActive: boolean
+  }
+}
+
 export async function registerTenant(body: RegisterTenantBody) {
-  await api.post('/accounts', body)
+  const response = await api.post<RegisterTenantResponse>('/accounts', body)
+
+  return response.data.tenant
 }

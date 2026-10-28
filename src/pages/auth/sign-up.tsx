@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
+import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -14,6 +15,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { hasValidSlugFormat, isReservedSlug, slugify } from '@/lib/slug'
 import { getTenantUrl } from '@/lib/tenant'
+
+import { RegistrationReceived } from './registration-received'
 
 const signUpForm = z.object({
   tenantName: z.string().trim().min(2, 'Informe o nome da loja.'),
@@ -69,15 +72,26 @@ export function SignUp() {
     mutationFn: registerTenant,
   })
 
+  // A store that waits for approval cannot sign in yet, so the page says so
+  // instead of sending the owner to the store's sign-in
+  const [pendingTenant, setPendingTenant] = useState<{
+    name: string
+    slug: string
+  } | null>(null)
+
   async function handleSignUp(data: SignUpForm) {
     try {
-      await registerTenantFn({
+      const tenant = await registerTenantFn({
         ...data,
         tenantPhone: data.tenantPhone || null,
       })
 
-      // The store has its own address now; sign in there
-      window.location.assign(getTenantUrl(data.tenantSlug, '/sign-in?created'))
+      if (tenant.isActive) {
+        // The store has its own address now; sign in there
+        window.location.assign(getTenantUrl(tenant.slug, '/sign-in?created'))
+      } else {
+        setPendingTenant(tenant)
+      }
     } catch (error) {
       const response = isAxiosError<{ message?: string }>(error)
         ? error.response
@@ -101,6 +115,10 @@ export function SignUp() {
         toast.error('Não foi possível cadastrar a loja. Tente de novo.')
       }
     }
+  }
+
+  if (pendingTenant) {
+    return <RegistrationReceived tenant={pendingTenant} />
   }
 
   return (

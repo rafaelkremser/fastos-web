@@ -73,6 +73,18 @@ describe('Sign In', () => {
     expect(hasSession()).toBe(false)
   })
 
+  it('should say when the store still waits for approval', async () => {
+    vi.mocked(signIn).mockRejectedValue(apiError(403))
+    renderSignIn()
+
+    await submit('maria@loja-a.com', '123456')
+
+    expect(
+      await screen.findByText(/Sua loja ainda está aguardando aprovação/),
+    ).toBeInTheDocument()
+    expect(hasSession()).toBe(false)
+  })
+
   it('should go straight to the panel when already signed in', async () => {
     localStorage.setItem('fastos-refresh-token', 'refresh-1')
 
