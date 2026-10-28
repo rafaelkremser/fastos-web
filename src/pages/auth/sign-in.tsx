@@ -69,6 +69,11 @@ export function SignIn() {
 
       if (status === 401) {
         toast.error('E-mail ou senha incorretos.')
+      } else if (status === 403) {
+        // The API only says so when the email and password are right
+        toast.warning(
+          'Sua loja ainda está aguardando aprovação. Assim que ela for liberada, você já pode entrar.',
+        )
       } else if (status === 429) {
         toast.error('Muitas tentativas. Aguarde um minuto e tente de novo.')
       } else {

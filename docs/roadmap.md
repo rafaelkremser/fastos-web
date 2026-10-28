@@ -44,8 +44,9 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
   - pedidos que falham juntos dividem uma única renovação;
   - se a API recusa a renovação, a sessão termina e o painel volta ao login. Se a falha for outra, como a API fora do ar, a sessão continua;
   - sair numa aba sai nas outras abas da mesma loja.
+- **Loja aguardando aprovação:** se a API devolve a loja inativa, o cadastro mostra "Cadastro recebido" em vez de levar ao login. No login, a loja pendente recebe um aviso próprio, porque a API só responde 403 quando a senha está certa. Se a API estiver com `TENANT_AUTO_APPROVAL=true`, o cadastro leva direto ao login, como antes.
 - **Painel:** sem sessão, manda para o login. O menu da conta mostra a loja, o usuário e o papel, e tem o "Sair".
-- **Testado contra a API real,** num branch temporário do Neon: cadastro, senha errada, login, recarga com uma única renovação, sair, token de renovação recusado, acesso pelo site público e endereço repetido.
+- **Testado contra a API real,** num branch temporário do Neon: cadastro, senha errada, login, recarga com uma única renovação, sair, token de renovação recusado, acesso pelo site público e endereço repetido. Com a aprovação: "Cadastro recebido", aviso de loja pendente no login, liberação pelo comando da API e login depois de liberada.
 
 ## Mudanças na API
 
@@ -84,4 +85,5 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | 2026-10-27 | Sem sessão, o pedido a uma rota protegida nem sai | Toda rota protegida exige token; sem ele, a API só responderia 401 | Enviar e esperar o 401 |
 | 2026-10-27 | Depois do cadastro, o login da loja nova pede o e-mail de novo | Passar o e-mail pela URL o deixaria no histórico e nos logs do servidor de arquivos | E-mail na URL, como no `pizza-shop` |
 | 2026-10-27 | Login do site público pede o endereço da loja e leva ao subdomínio | O login de verdade precisa do subdomínio, e a API não diz quais lojas existem | Lista de lojas; descobrir a loja pelo e-mail |
+| 2026-10-27 | O cadastro decide pela resposta da API: loja inativa mostra "Cadastro recebido", loja ativa vai para o login | Funciona com a API nos dois modos (`TENANT_AUTO_APPROVAL`), sem configuração no front | Variável própria no front |
 | 2026-10-27 | Testes simulam a API com um adaptador falso do axios e `vi.mock` nas funções de `src/api` | Cobre a renovação e as telas sem dependência nova; o MSW fica para quando os testes de ponta a ponta (F6) precisarem | MSW já no F1 |
