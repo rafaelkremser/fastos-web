@@ -18,6 +18,7 @@ import { canDeleteRecords } from '@/lib/permissions'
 
 import { CustomerDevices } from './customer-devices'
 import { CustomerDialog } from './customer-dialog'
+import { CustomerServiceOrders } from './customer-service-orders'
 
 export function CustomerDetails() {
   const { customerId = '' } = useParams()
@@ -154,6 +155,8 @@ export function CustomerDetails() {
             </div>
           )}
         </dl>
+
+        <CustomerServiceOrders customerId={customer.id} />
 
         <CustomerDevices customerId={customer.id} canDelete={canDelete} />
       </div>

@@ -61,7 +61,7 @@ interface DeviceDialogProps {
   customerId: string
   // Edits this device; without it, creates a new one for the customer
   device?: Device
-  onSaved: () => void
+  onSaved: (device: Device) => void
 }
 
 // The content of a <Dialog>; the page that opens it keeps it open or closed
@@ -106,10 +106,10 @@ export function DeviceDialog({
 
   async function handleSave(data: DeviceForm) {
     try {
-      await saveDevice(toBody(data))
+      const saved = await saveDevice(toBody(data))
 
       toast.success(device ? 'Aparelho atualizado.' : 'Aparelho cadastrado.')
-      onSaved()
+      onSaved(saved)
     } catch {
       toast.error('Não foi possível salvar o aparelho. Tente de novo.')
     }

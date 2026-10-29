@@ -1,9 +1,6 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
 
 import { NotFound } from './pages/404'
-import { CustomerDetails } from './pages/app/customers/customer-details'
-import { Customers } from './pages/app/customers/customers'
-import { Dashboard } from './pages/app/dashboard/dashboard'
 import { FindStore } from './pages/auth/find-store'
 import { SignIn } from './pages/auth/sign-in'
 import { SignUp } from './pages/auth/sign-up'
@@ -26,16 +23,52 @@ const publicRoutes: RouteObject[] = [
   { path: '*', element: <NotFound /> },
 ]
 
-// A store, on its own subdomain
+// A store, on its own subdomain. The panel's pages load when first opened, so
+// the sign-in page does not download them
 const tenantRoutes: RouteObject[] = [
   {
     path: '/',
     element: <AppLayout />,
     errorElement: <ErrorPage />,
+    hydrateFallbackElement: null,
     children: [
-      { index: true, element: <Dashboard /> },
-      { path: 'customers', element: <Customers /> },
-      { path: 'customers/:customerId', element: <CustomerDetails /> },
+      // Until there is a dashboard (F5), the panel opens on the orders
+      { index: true, element: <Navigate to="/service-orders" replace /> },
+      {
+        path: 'service-orders',
+        lazy: () =>
+          import('./pages/app/service-orders/service-orders').then(
+            (module) => ({ Component: module.ServiceOrders }),
+          ),
+      },
+      {
+        path: 'service-orders/new',
+        lazy: () =>
+          import('./pages/app/service-orders/new-service-order').then(
+            (module) => ({ Component: module.NewServiceOrder }),
+          ),
+      },
+      {
+        path: 'service-orders/:serviceOrderId',
+        lazy: () =>
+          import('./pages/app/service-orders/service-order-details').then(
+            (module) => ({ Component: module.ServiceOrderDetails }),
+          ),
+      },
+      {
+        path: 'customers',
+        lazy: () =>
+          import('./pages/app/customers/customers').then((module) => ({
+            Component: module.Customers,
+          })),
+      },
+      {
+        path: 'customers/:customerId',
+        lazy: () =>
+          import('./pages/app/customers/customer-details').then((module) => ({
+            Component: module.CustomerDetails,
+          })),
+      },
     ],
   },
   {
