@@ -16,6 +16,7 @@ interface ConfirmDeleteDialogProps {
   trigger: React.ReactNode
   isDeleting: boolean
   onConfirm: () => void
+  confirmLabel?: string
 }
 
 export function ConfirmDeleteDialog({
@@ -24,6 +25,7 @@ export function ConfirmDeleteDialog({
   trigger,
   isDeleting,
   onConfirm,
+  confirmLabel = 'Excluir',
 }: ConfirmDeleteDialogProps) {
   return (
     <AlertDialog>
@@ -40,7 +42,7 @@ export function ConfirmDeleteDialog({
             disabled={isDeleting}
             onClick={onConfirm}
           >
-            Excluir
+            {confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

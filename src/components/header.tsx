@@ -1,4 +1,4 @@
-import { House, Users, Wrench } from 'lucide-react'
+import { ClipboardList, Users, Wrench } from 'lucide-react'
 
 import { AccountMenu } from './account-menu'
 import { NavLink } from './nav-link'
@@ -15,9 +15,9 @@ export function Header() {
 
         {/* On phones the links show only their icons */}
         <nav className="flex items-center sm:space-x-4 lg:space-x-6">
-          <NavLink to="/">
-            <House className="size-4" />
-            <span className="sr-only sm:not-sr-only">Início</span>
+          <NavLink to="/service-orders">
+            <ClipboardList className="size-4" />
+            <span className="sr-only sm:not-sr-only">Ordens de serviço</span>
           </NavLink>
           <NavLink to="/customers">
             <Users className="size-4" />

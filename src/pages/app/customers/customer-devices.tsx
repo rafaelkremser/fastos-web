@@ -4,8 +4,9 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { FilePlus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { toast } from 'sonner'
 
 import { deleteDevice } from '@/api/delete-device'
@@ -77,7 +78,7 @@ export function CustomerDevices({
               </TableHead>
               <TableHead className="hidden lg:table-cell">Estado</TableHead>
               <TableHead className="hidden lg:table-cell">Acessórios</TableHead>
-              <TableHead className="w-[96px]" />
+              <TableHead className="w-[128px]" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -177,6 +178,15 @@ function DeviceRow({ customerId, device, canDelete }: DeviceRowProps) {
       </TableCell>
       <TableCell>
         <div className="flex justify-end gap-1">
+          <Button variant="ghost" size="icon-sm" asChild>
+            <Link
+              to={`/service-orders/new?customerId=${customerId}&deviceId=${device.id}`}
+            >
+              <FilePlus className="size-4" />
+              <span className="sr-only">Abrir OS para este aparelho</span>
+            </Link>
+          </Button>
+
           <Dialog open={isEditing} onOpenChange={setIsEditing}>
             <DialogTrigger asChild>
               <Button variant="ghost" size="icon-sm">

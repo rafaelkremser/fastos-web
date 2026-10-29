@@ -17,6 +17,13 @@ vi.mock('@/api/fetch-customer-devices', () => ({
   fetchCustomerDevices: vi.fn(),
 }))
 vi.mock('@/api/delete-customer', () => ({ deleteCustomer: vi.fn() }))
+// The customer's orders are on the page too; this spec is not about them
+vi.mock('@/api/fetch-service-orders', () => ({
+  fetchServiceOrders: vi.fn().mockResolvedValue({
+    serviceOrders: [],
+    meta: { page: 1, perPage: 20, totalCount: 0 },
+  }),
+}))
 
 function renderAs(role: UserRole) {
   vi.mocked(getUser).mockResolvedValue({

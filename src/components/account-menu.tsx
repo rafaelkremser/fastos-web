@@ -2,8 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, LogOut } from 'lucide-react'
 
 import { getTenant } from '@/api/get-tenant'
-import type { UserRole } from '@/api/get-user'
 import { useCurrentUser } from '@/hooks/use-current-user'
+import { ROLE_LABELS } from '@/lib/roles'
 import { endSession } from '@/lib/session'
 
 import { Button } from './ui/button'
@@ -16,13 +16,6 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 import { Skeleton } from './ui/skeleton'
-
-const roleLabels: Record<UserRole, string> = {
-  OWNER: 'Dono',
-  ADMIN: 'Administrador',
-  TECHNICIAN: 'Técnico',
-  RECEPTIONIST: 'Atendente',
-}
 
 export function AccountMenu() {
   const queryClient = useQueryClient()
@@ -74,7 +67,7 @@ export function AccountMenu() {
                   {user.email}
                 </span>
                 <span className="text-xs font-normal text-muted-foreground">
-                  {roleLabels[user.role]}
+                  {ROLE_LABELS[user.role]}
                 </span>
               </>
             )
