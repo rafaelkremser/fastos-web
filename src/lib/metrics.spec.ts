@@ -1,8 +1,10 @@
 import {
   formatCompactMoney,
+  formatDuration,
   formatShortDay,
   getAxisMax,
   getChange,
+  getCurrentMonthName,
   getPreviousMonthName,
 } from './metrics'
 
@@ -17,6 +19,19 @@ describe('metrics helpers', () => {
   it('should name the previous month, across the turn of the year', () => {
     expect(getPreviousMonthName(new Date(2026, 9, 30))).toBe('setembro')
     expect(getPreviousMonthName(new Date(2026, 0, 15))).toBe('dezembro')
+  })
+
+  it("should name today's month", () => {
+    expect(getCurrentMonthName(new Date(2026, 9, 30))).toBe('outubro')
+  })
+
+  it('should write a time in the unit that reads best', () => {
+    expect(formatDuration(0.25)).toBe('15 min')
+    expect(formatDuration(2.5)).toBe('2,5 h')
+    expect(formatDuration(13.3)).toBe('13 h')
+    expect(formatDuration(24)).toBe('1 dia')
+    expect(formatDuration(72)).toBe('3 dias')
+    expect(formatDuration(36)).toBe('1,5 dias')
   })
 
   it('should compare with the previous period in whole percents', () => {

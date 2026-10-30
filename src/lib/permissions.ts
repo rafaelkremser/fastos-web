@@ -26,3 +26,9 @@ export function canCreateUsers(role: UserRole | undefined) {
 export function canSeeRevenue(role: UserRole | undefined) {
   return role === 'OWNER' || role === 'ADMIN'
 }
+
+// Numbers per technician and the time in each stage, on the dashboard. A
+// technician does not see even their own
+export function canSeeTeamMetrics(role: UserRole | undefined) {
+  return role === 'OWNER' || role === 'ADMIN'
+}

@@ -15,6 +15,31 @@ export function getPreviousMonthName(today = new Date()) {
   )
 }
 
+// Today's month, as in "outubro"
+export function getCurrentMonthName(today = new Date()) {
+  return monthFormatter.format(today)
+}
+
+const decimalFormatter = new Intl.NumberFormat('pt-BR', {
+  maximumFractionDigits: 1,
+})
+
+// A time in hours, in the unit that reads best: "40 min", "2,5 h", "13 h",
+// "3 dias"
+export function formatDuration(hours: number) {
+  if (hours < 1) {
+    return `${Math.max(1, Math.round(hours * 60))} min`
+  }
+
+  if (hours < 24) {
+    return `${decimalFormatter.format(hours < 10 ? hours : Math.round(hours))} h`
+  }
+
+  const days = Math.round((hours / 24) * 10) / 10
+
+  return `${decimalFormatter.format(days)} ${days === 1 ? 'dia' : 'dias'}`
+}
+
 // How this period compares with the previous one, in whole percents. Null
 // when there is nothing to compare with
 export function getChange(current: number, previous: number) {
