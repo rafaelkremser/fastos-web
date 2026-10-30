@@ -16,3 +16,8 @@ export function canEditServiceOrders(role: UserRole | undefined) {
 export function canAssignTechnician(role: UserRole | undefined) {
   return role === 'OWNER' || role === 'ADMIN'
 }
+
+// Adding people to the team; which roles each can give is in getAssignableRoles
+export function canCreateUsers(role: UserRole | undefined) {
+  return role === 'OWNER' || role === 'ADMIN'
+}

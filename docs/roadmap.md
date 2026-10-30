@@ -17,8 +17,8 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F2 | Clientes e aparelhos: lista com busca, cadastro, edição e exclusão conforme o papel | Feito ([PR #3](https://github.com/rafaelkremser/fastos-web/pull/3)) |
 | F3 | Ordens de serviço: lista com filtros, abertura, detalhes, status, itens, histórico, edição e técnico | Feito ([PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F3.1 | Aviso ao cliente: marca e filtro na lista, registrar aviso na OS, atalho de WhatsApp com mensagem pronta | Feito (junto do F3, no [PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
-| F4 | Equipe: listar e criar usuários | **Próximo** |
-| F5 | Dashboard | Pendente |
+| F4 | Equipe: listar e criar usuários | Feito ([PR #5](https://github.com/rafaelkremser/fastos-web/pull/5)) |
+| F5 | Dashboard | **Próximo** (começa pelo A4, na API) |
 | F6 | Testes de ponta a ponta (Playwright) e deploy | Pendente |
 
 ### F0: base do projeto
@@ -83,6 +83,19 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
   - "Registrar aviso" fica no cabeçalho, para todos os papéis, quando não há destaque: serve para anotar outros contatos, como um atraso.
 - **Testado contra a API real,** com a loja demo e a atendente: três OS marcadas, o filtro deixando só elas, a mensagem montada com os dados da OS nº 7, aviso por ligação com observação, a OS saindo da lista e o histórico com o aviso. A OS nº 3 mostrou o texto e a mensagem de orçamento. Os dois temas foram conferidos.
 
+### F4: equipe
+
+- **Página da equipe** (`/team`, link "Equipe" no cabeçalho): nome, e-mail, papel e desde quando está na loja. Todos os papéis veem; quem está olhando aparece com "(você)", e quem foi desativado, com "Inativo". Num celular, o e-mail vai para baixo do nome.
+- **Novo usuário,** só para dono e administrador: nome, e-mail, senha (mínimo de 6 caracteres, com botão para mostrar) e papel. O dono dá administrador, técnico ou atendente; o administrador, só técnico ou atendente, como na API. Ninguém cria outro dono. E-mail repetido na loja aparece no próprio campo.
+- **Depois de cadastrar,** o diálogo mostra o endereço de login da loja, o e-mail e o papel, com o botão "Copiar acesso" (endereço e e-mail; a senha fica de fora). A lista e os técnicos das OS já trazem a pessoa nova.
+- **Testado contra a API real,** num branch temporário do Neon e pelo front da 5173: a lista da loja demo, senha curta barrada antes de enviar, o dono criando uma administradora, e-mail repetido, login da pessoa nova com a senha definida e as opções dela limitadas a técnico e atendente.
+- **Encontrado no teste e corrigido:** os diálogos guardavam o que tinham na memória entre uma abertura e outra, porque o componente continuava montado com o diálogo fechado. Reabrir o "Novo usuário" mostrava o resumo do anterior, e o mesmo valia para os diálogos do F2 e do F3:
+  - mudar o status de novo trazia a observação anterior e a sugestão antiga, que a tela recusava como "status igual ao atual";
+  - o registro de aviso trazia o canal e a observação anteriores;
+  - um aparelho ou um item novo vinha com os dados do último.
+
+  Agora o estado de cada diálogo fica dentro do `DialogContent`, que só existe com o diálogo aberto. Cada abertura começa do zero, e os diálogos de edição mostram os dados atuais. Dois testes cobrem o caso.
+
 ## Mudanças na API
 
 | # | Mudança | Precisa para | Status |
@@ -95,6 +108,9 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | A6 | Excluir cliente ou aparelho com OS responde 409, e não 500; excluir cliente sem OS leva os aparelhos junto | F2: sem isso, excluir quase qualquer cliente dava erro | Feito ([fastos-api #15](https://github.com/rafaelkremser/fastos-api/pull/15)) |
 | A7 | Rota pública que diz se uma loja existe (`GET /tenants/:slug`, com o nome da loja; 404 se não existe), com limite de tentativas | Login e "Acessar sua loja" avisarem "Loja não encontrada" e o login mostrar o nome da loja. Adiado: não é prioridade agora | Pendente |
 | A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Pendente |
+| A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
+| A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Pendente |
+| A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Pendente |
 | A9 | Aviso ao cliente: a OS guarda quando a loja avisou o cliente, mudar o status apaga, `POST /service-orders/:id/notices` registra (com canal e observação, no histórico) e a lista filtra `needsCustomerNotice` | F3.1: marca "Avisar cliente", filtro "Precisa avisar", botão de registrar aviso e atalho de WhatsApp | Feito ([fastos-api #19](https://github.com/rafaelkremser/fastos-api/pull/19)); front no F3.1 |
 
 ## Débitos conhecidos
@@ -109,6 +125,9 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 - **Telefones salvos por outros meios** com pontuação, como "(11) 98765-4321", não batem com a verificação de repetido, que compara o texto. O front sempre envia só os números.
 - **O cadastro separa os dois 409 pelo texto da mensagem da API** ("address"). Se a mensagem mudar, o erro de endereço passa a aparecer no campo de e-mail. O A5 resolve.
 - **O front não sabe se a loja existe:** qualquer subdomínio abre um login, e um endereço digitado errado (no navegador ou no "Acessar sua loja") só descobre o erro ao tentar entrar, com "e-mail ou senha incorretos". O A7 resolve; adiado por decisão do dono do projeto.
+- **A senha de quem entra na equipe é definida por quem cria,** e a pessoa não tem como trocá-la (A11). O ideal, mais adiante, é um convite por e-mail em que a própria pessoa escolhe a senha.
+- **Não dá para tirar alguém da equipe nem mudar o papel** pela tela, porque a API não tem essas rotas (A12).
+- **O e-mail diferencia maiúsculas no login e no cadastro** (A10): quem foi cadastrado como "Ana@loja.com" só entra digitando igual.
 - **Os tokens ficam no `localStorage`,** então um script injetado no site (XSS) conseguiria lê-los. É o mesmo débito do roadmap da API; a alternativa é o token de renovação num cookie que o JavaScript não lê.
 - **Sair só apaga os tokens deste navegador:** a API não revoga, então uma cópia do token de renovação vale até completar 7 dias do login (débito da API, P3-1).
 - **A CLI do shadcn traz 3 falhas de gravidade baixa,** no `deepmerge`. Ela fica nas dependências de desenvolvimento, e nada dela chega ao navegador: `npm audit --omit=dev` não acusa nada.
@@ -140,6 +159,8 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | 2026-10-28 | Aviso ao cliente como registro à parte, e não como status novo | O status diz onde o aparelho está; o aviso diz se o cliente sabe. Status como "Pronta, cliente avisado" dobrariam o fluxo | Status "Pronta, avisar cliente" e "Pronta, cliente avisado" |
 | 2026-10-29 | WhatsApp por link (`wa.me`) com a mensagem pronta, enviada pela própria pessoa | Não custa nada, não exige integração e usa o WhatsApp que a loja já tem | Envio automático pela API do WhatsApp Business, que é paga e exige aprovação da Meta |
 | 2026-10-29 | Abrir o WhatsApp deixa o diálogo de registro aberto, mas não registra sozinho | Abrir a conversa não garante que a mensagem foi enviada | Registrar o aviso ao clicar no botão |
+| 2026-10-29 | O estado de cada diálogo fica num componente dentro do `DialogContent` | O Radix só monta o `DialogContent` com o diálogo aberto, então cada abertura começa do zero sem código extra, e a animação de saída continua | `key` que muda a cada abertura, em cada página; montar o diálogo só quando aberto, que corta a animação |
+| 2026-10-29 | Quem cria o usuário define a senha, e o diálogo mostra o endereço da loja para passar adiante | É o que a API oferece hoje, e uma pessoa nova não sabe o endereço da loja | Convite por e-mail, que precisa de envio de e-mail na API |
 | 2026-10-28 | Técnico escolhido entre os usuários ativos que não são atendentes | Em loja pequena o dono também conserta; o atendente não | Só quem tem o papel de técnico |
 | 2026-10-28 | O rodapé dos itens mostra o valor que vale no total (final, orçamento ou soma dos itens) | É a regra da API; sem isso, o total parece uma soma errada | Calcular o total no front |
 | 2026-10-28 | Datas sem hora (previsão, garantia) mostradas em UTC | A API guarda o dia à meia-noite UTC; no fuso do Brasil ele apareceria como o dia anterior | Mandar a data com fuso |

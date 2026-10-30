@@ -31,7 +31,17 @@ interface AssignTechnicianDialogProps {
 }
 
 // The content of a <Dialog>
-export function AssignTechnicianDialog({
+export function AssignTechnicianDialog(props: AssignTechnicianDialogProps) {
+  return (
+    <DialogContent>
+      <AssignTechnicianDialogContent {...props} />
+    </DialogContent>
+  )
+}
+
+// Inside <DialogContent>, which is only mounted while the dialog is open, so
+// each opening starts over from the current data
+function AssignTechnicianDialogContent({
   serviceOrder,
   onDone,
 }: AssignTechnicianDialogProps) {
@@ -54,7 +64,7 @@ export function AssignTechnicianDialog({
   })
 
   return (
-    <DialogContent>
+    <>
       <DialogHeader>
         <DialogTitle>Técnico responsável</DialogTitle>
         <DialogDescription>
@@ -92,6 +102,6 @@ export function AssignTechnicianDialog({
           Atribuir
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   )
 }

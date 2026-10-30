@@ -60,7 +60,17 @@ interface EditServiceOrderDialogProps {
 }
 
 // The content of a <Dialog>. The technician has its own dialog
-export function EditServiceOrderDialog({
+export function EditServiceOrderDialog(props: EditServiceOrderDialogProps) {
+  return (
+    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <EditServiceOrderDialogContent {...props} />
+    </DialogContent>
+  )
+}
+
+// Inside <DialogContent>, which is only mounted while the dialog is open, so
+// each opening starts over from the current data
+function EditServiceOrderDialogContent({
   serviceOrder,
   onDone,
 }: EditServiceOrderDialogProps) {
@@ -120,7 +130,7 @@ export function EditServiceOrderDialog({
   }
 
   return (
-    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+    <>
       <DialogHeader>
         <DialogTitle>Editar OS nº {serviceOrder.number}</DialogTitle>
         <DialogDescription>
@@ -260,6 +270,6 @@ export function EditServiceOrderDialog({
           Salvar
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   )
 }

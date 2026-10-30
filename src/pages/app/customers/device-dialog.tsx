@@ -65,7 +65,17 @@ interface DeviceDialogProps {
 }
 
 // The content of a <Dialog>; the page that opens it keeps it open or closed
-export function DeviceDialog({
+export function DeviceDialog(props: DeviceDialogProps) {
+  return (
+    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DeviceDialogContent {...props} />
+    </DialogContent>
+  )
+}
+
+// Inside <DialogContent>, which is only mounted while the dialog is open, so
+// each opening starts over from the current data
+function DeviceDialogContent({
   customerId,
   device,
   onSaved,
@@ -125,7 +135,7 @@ export function DeviceDialog({
       : DEVICE_TYPES
 
   return (
-    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+    <>
       <DialogHeader>
         <DialogTitle>
           {device ? 'Editar aparelho' : 'Novo aparelho'}
@@ -221,6 +231,6 @@ export function DeviceDialog({
           {device ? 'Salvar' : 'Cadastrar aparelho'}
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   )
 }
