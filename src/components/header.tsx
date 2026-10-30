@@ -1,4 +1,4 @@
-import { ClipboardList, Users, Wrench } from 'lucide-react'
+import { ClipboardList, IdCard, Users, Wrench } from 'lucide-react'
 
 import { AccountMenu } from './account-menu'
 import { NavLink } from './nav-link'
@@ -11,7 +11,12 @@ export function Header() {
       <div className="flex h-16 items-center gap-3 px-4 sm:gap-6 sm:px-6">
         <Wrench className="hidden size-6 sm:block" />
 
-        <Separator orientation="vertical" className="hidden h-6 sm:block" />
+        {/* The separator stretches to the full height by default; here it is
+            a short line centered by the logo */}
+        <Separator
+          orientation="vertical"
+          className="hidden h-6 sm:block data-vertical:self-center"
+        />
 
         {/* On phones the links show only their icons */}
         <nav className="flex items-center sm:space-x-4 lg:space-x-6">
@@ -22,6 +27,10 @@ export function Header() {
           <NavLink to="/customers">
             <Users className="size-4" />
             <span className="sr-only sm:not-sr-only">Clientes</span>
+          </NavLink>
+          <NavLink to="/team">
+            <IdCard className="size-4" />
+            <span className="sr-only sm:not-sr-only">Equipe</span>
           </NavLink>
         </nav>
 

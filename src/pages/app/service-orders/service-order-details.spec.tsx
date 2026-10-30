@@ -208,6 +208,14 @@ describe('Service Order Details', () => {
       },
       expect.anything(),
     )
+
+    // The next change starts from the order as it is now, without the note
+    await user.click(screen.getByRole('button', { name: 'Mudar status' }))
+    const again = within(screen.getByRole('dialog'))
+    expect(
+      again.getByRole('combobox', { name: 'Novo status' }),
+    ).toHaveTextContent('Aprovada')
+    expect(again.getByLabelText('Observação (opcional)')).toHaveValue('')
   })
 
   it('should point out a pending notice, with the WhatsApp message written', async () => {

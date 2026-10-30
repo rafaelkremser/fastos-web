@@ -38,7 +38,17 @@ interface ChangeStatusDialogProps {
 
 // The content of a <Dialog>. Any status can be chosen; the usual next step
 // comes selected
-export function ChangeStatusDialog({
+export function ChangeStatusDialog(props: ChangeStatusDialogProps) {
+  return (
+    <DialogContent>
+      <ChangeStatusDialogContent {...props} />
+    </DialogContent>
+  )
+}
+
+// Inside <DialogContent>, which is only mounted while the dialog is open, so
+// each opening starts over from the current data
+function ChangeStatusDialogContent({
   serviceOrder,
   onDone,
 }: ChangeStatusDialogProps) {
@@ -90,7 +100,7 @@ export function ChangeStatusDialog({
   }
 
   return (
-    <DialogContent>
+    <>
       <DialogHeader>
         <DialogTitle>Mudar status</DialogTitle>
         <DialogDescription>
@@ -142,6 +152,6 @@ export function ChangeStatusDialog({
           Mudar status
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   )
 }

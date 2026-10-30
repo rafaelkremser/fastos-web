@@ -41,7 +41,17 @@ interface CustomerNoticeDialogProps {
 
 // The content of a <Dialog>. Records that the customer was told, so the order
 // leaves the "Precisa avisar" list; the history keeps the channel and note
-export function CustomerNoticeDialog({
+export function CustomerNoticeDialog(props: CustomerNoticeDialogProps) {
+  return (
+    <DialogContent>
+      <CustomerNoticeDialogContent {...props} />
+    </DialogContent>
+  )
+}
+
+// Inside <DialogContent>, which is only mounted while the dialog is open, so
+// each opening starts over from the current data
+function CustomerNoticeDialogContent({
   serviceOrder,
   onDone,
 }: CustomerNoticeDialogProps) {
@@ -78,7 +88,7 @@ export function CustomerNoticeDialog({
   }
 
   return (
-    <DialogContent>
+    <>
       <DialogHeader>
         <DialogTitle>Registrar aviso</DialogTitle>
         <DialogDescription>
@@ -130,6 +140,6 @@ export function CustomerNoticeDialog({
           Registrar aviso
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   )
 }

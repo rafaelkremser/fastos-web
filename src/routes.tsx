@@ -69,6 +69,13 @@ const tenantRoutes: RouteObject[] = [
             Component: module.CustomerDetails,
           })),
       },
+      {
+        path: 'team',
+        lazy: () =>
+          import('./pages/app/team/team').then((module) => ({
+            Component: module.Team,
+          })),
+      },
     ],
   },
   {

@@ -225,7 +225,17 @@ interface AddItemDialogProps {
   onDone: () => void
 }
 
-function AddItemDialog({ serviceOrderId, onDone }: AddItemDialogProps) {
+function AddItemDialog(props: AddItemDialogProps) {
+  return (
+    <DialogContent>
+      <AddItemDialogContent {...props} />
+    </DialogContent>
+  )
+}
+
+// Inside <DialogContent>, which is only mounted while the dialog is open, so
+// each opening starts over from the current data
+function AddItemDialogContent({ serviceOrderId, onDone }: AddItemDialogProps) {
   const queryClient = useQueryClient()
 
   const {
@@ -272,7 +282,7 @@ function AddItemDialog({ serviceOrderId, onDone }: AddItemDialogProps) {
   }
 
   return (
-    <DialogContent>
+    <>
       <DialogHeader>
         <DialogTitle>Adicionar item</DialogTitle>
         <DialogDescription>
@@ -354,6 +364,6 @@ function AddItemDialog({ serviceOrderId, onDone }: AddItemDialogProps) {
           Adicionar
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   )
 }

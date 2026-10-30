@@ -82,7 +82,17 @@ interface CustomerDialogProps {
 }
 
 // The content of a <Dialog>; the page that opens it keeps it open or closed
-export function CustomerDialog({ customer, onSaved }: CustomerDialogProps) {
+export function CustomerDialog(props: CustomerDialogProps) {
+  return (
+    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <CustomerDialogContent {...props} />
+    </DialogContent>
+  )
+}
+
+// Inside <DialogContent>, which is only mounted while the dialog is open, so
+// each opening starts over from the current data
+function CustomerDialogContent({ customer, onSaved }: CustomerDialogProps) {
   const queryClient = useQueryClient()
 
   const {
@@ -138,7 +148,7 @@ export function CustomerDialog({ customer, onSaved }: CustomerDialogProps) {
   }
 
   return (
-    <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+    <>
       <DialogHeader>
         <DialogTitle>
           {customer ? 'Editar cliente' : 'Novo cliente'}
@@ -246,6 +256,6 @@ export function CustomerDialog({ customer, onSaved }: CustomerDialogProps) {
           {customer ? 'Salvar' : 'Cadastrar cliente'}
         </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   )
 }
