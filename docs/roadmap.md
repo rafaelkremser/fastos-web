@@ -18,8 +18,9 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F3 | Ordens de serviço: lista com filtros, abertura, detalhes, status, itens, histórico, edição e técnico | Feito ([PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F3.1 | Aviso ao cliente: marca e filtro na lista, registrar aviso na OS, atalho de WhatsApp com mensagem pronta | Feito (junto do F3, no [PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F4 | Equipe: listar e criar usuários | Feito ([PR #5](https://github.com/rafaelkremser/fastos-web/pull/5)) |
-| F5 | Dashboard | **Próximo** (começa pelo A4, na API) |
-| F6 | Testes de ponta a ponta (Playwright) e deploy | Pendente |
+| F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
+| F5.1 | Métricas por técnico: em andamento, atrasadas, concluídas e entregues no mês | A decidir (ver "F5.1: métricas por técnico") |
+| F6 | Testes de ponta a ponta (Playwright) e deploy | **Próximo** |
 
 ### F0: base do projeto
 
@@ -96,6 +97,34 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 
   Agora o estado de cada diálogo fica dentro do `DialogContent`, que só existe com o diálogo aberto. Cada abertura começa do zero, e os diálogos de edição mostram os dados atuais. Dois testes cobrem o caso.
 
+### F5: dashboard
+
+- **Início** (`/`, onde o painel abre agora, com link "Início" no cabeçalho):
+  - para todos: em andamento (com as atrasadas em destaque), prontas para retirada e esperando aviso, com atalhos para as listas;
+  - "OS na loja": quantas há em cada status, de "Aberta" a "Pronta", e cada linha abre a lista com aquele status;
+  - só para dono e administrador: faturamento e entregas do mês, comparados com o mesmo trecho do mês anterior ("+272% sobre o mesmo período de setembro"), e o faturamento dia a dia dos últimos 30 dias.
+- **Gráfico feito à mão,** sem biblioteca: uma barra por dia, valor e entregas ao passar o mouse ou focar pelo teclado (as setas andam entre os dias, e o gráfico é uma parada só de Tab), escala com três valores e a tabela "Ver os números" com tudo. O azul das barras foi conferido contra o fundo dos dois temas.
+- **Cabeçalho:** com quatro links, os nomes só aparecem a partir de 1024 px; abaixo disso, só os ícones. Em 640–1023 px os nomes quebravam linha ou empurravam o menu da loja.
+- **Testado contra a API real,** pelo front da 5173, com entregas espalhadas num branch temporário: os números bateram com a conta feita à mão, a dica do gráfico, a tabela, os dois temas, celular, tablet e o técnico vendo só a operação (sem nem pedir o faturamento).
+
+### F5.1: métricas por técnico (a decidir)
+
+Pedido do dono do projeto em 2026-10-30, anotado para pensar depois do F5.
+
+- **Proposta:** uma tabela no Início, uma linha por técnico, com em andamento, atrasadas, concluídas no mês e entregues no mês, e uma linha "Sem técnico" para as OS sem ninguém. Tabela, e não gráfico, porque são várias medidas por pessoa, em escalas diferentes; uma barrinha em cada número ajuda a comparar.
+- **Concluídas e entregues são coisas diferentes:** "concluída" (a OS ficou pronta, pela data em que ficou pronta) mede o trabalho do técnico; "entregue" depende de o cliente vir buscar. Vale mostrar as duas.
+- **Crédito:** a OS conta para o técnico atribuído agora. Se trocou de técnico no meio, conta para o último.
+- **Decidido pelo dono do projeto:**
+  - o técnico vê só a própria linha, com as OS dele; dono e administrador veem a tabela toda;
+  - entra o faturamento por técnico, só para dono e administrador.
+- **Tempo de conserto, ainda em discussão:** a média "da entrada até ficar pronta" por pessoa é injusta, porque mistura o que não depende do técnico (esperar peça, esperar o cliente aprovar o orçamento, conserto difícil), e vira ranking. Proposta:
+  - começar pelo tempo de cada etapa para a loja toda (quanto as OS ficam em "Aguardando peças", "Aguardando aprovação", "Em reparo"), que mostra onde o trabalho trava sem apontar pessoas;
+  - se um dia entrar o tempo por técnico, contar só o tempo em que a OS esteve com ele (fora as esperas), usar a mediana, mostrar a cada técnico só o dele e não fazer ranking;
+  - a equipe deve saber o que é medido.
+
+  Dá para calcular pelo histórico de mudanças de status, que já guarda a hora de cada mudança.
+- **Precisa da API:** A13.
+
 ## Mudanças na API
 
 | # | Mudança | Precisa para | Status |
@@ -103,7 +132,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | A1 | Total de registros nas listas de clientes, aparelhos e OS | F2: paginação com "página X de Y" | Feito ([fastos-api #14](https://github.com/rafaelkremser/fastos-api/pull/14)) |
 | A2 | Lista de OS com o nome do cliente e a descrição do aparelho; hoje vêm só os IDs. Validar também o filtro de status, que hoje dá 500 com um valor desconhecido | F3: sem isso, a tabela faria uma chamada extra por linha | Feito ([fastos-api #16](https://github.com/rafaelkremser/fastos-api/pull/16)) |
 | A3 | Rota para listar os usuários da loja | F3: escolher o técnico; F4: tela da equipe | Feito ([fastos-api #18](https://github.com/rafaelkremser/fastos-api/pull/18)) |
-| A4 | Rotas de métricas | F5 | Pendente |
+| A4 | Rotas de métricas: `GET /metrics/operations` (todos) e `GET /metrics/revenue` (dono e administrador) | F5 | Feito ([fastos-api #20](https://github.com/rafaelkremser/fastos-api/pull/20)) |
 | A5 | Código de erro nas respostas, para o front não depender do texto da mensagem | Opcional: hoje o cadastro separa "endereço em uso" de "e-mail em uso" pelo texto do 409 | Pendente |
 | A6 | Excluir cliente ou aparelho com OS responde 409, e não 500; excluir cliente sem OS leva os aparelhos junto | F2: sem isso, excluir quase qualquer cliente dava erro | Feito ([fastos-api #15](https://github.com/rafaelkremser/fastos-api/pull/15)) |
 | A7 | Rota pública que diz se uma loja existe (`GET /tenants/:slug`, com o nome da loja; 404 se não existe), com limite de tentativas | Login e "Acessar sua loja" avisarem "Loja não encontrada" e o login mostrar o nome da loja. Adiado: não é prioridade agora | Pendente |
@@ -111,12 +140,15 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
 | A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Pendente |
 | A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Pendente |
+| A13 | Métricas por técnico: em andamento, atrasadas, concluídas, entregues e faturamento no período, por técnico, mais as sem técnico. O técnico recebe só os próprios números; o faturamento, só dono e administrador | F5.1 | A decidir |
 | A9 | Aviso ao cliente: a OS guarda quando a loja avisou o cliente, mudar o status apaga, `POST /service-orders/:id/notices` registra (com canal e observação, no histórico) e a lista filtra `needsCustomerNotice` | F3.1: marca "Avisar cliente", filtro "Precisa avisar", botão de registrar aviso e atalho de WhatsApp | Feito ([fastos-api #19](https://github.com/rafaelkremser/fastos-api/pull/19)); front no F3.1 |
 
 ## Débitos conhecidos
 
 - **O tema é guardado por subdomínio:** cada loja lembra o seu.
 - **O tema pode piscar no primeiro carregamento:** a página abre no tema claro por um instante antes de aplicar o escuro.
+- **"Atrasadas" não abre uma lista:** a lista de OS não filtra por atraso. Dá para pedir um filtro à API se fizer falta.
+- **O dashboard não escolhe período:** o mês corrente e os últimos 30 dias são fixos.
 - **O bundle principal tem 717 kB (229 kB comprimido),** acima do aviso do Vite. As telas do painel já carregam sob demanda; o que sobra (React, rotas, formulários, validação) a tela de login também usa.
 - **O histórico da OS só registra status, técnico e avisos:** itens lançados ou removidos e edições de valor não aparecem nele, porque a API não grava.
 - **O atalho do WhatsApp supõe telefone do Brasil:** um número com DDD ganha o 55 na frente. Telefone de outro país não ganha o botão, mas o aviso pode ser registrado do mesmo jeito.
@@ -161,6 +193,9 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | 2026-10-29 | Abrir o WhatsApp deixa o diálogo de registro aberto, mas não registra sozinho | Abrir a conversa não garante que a mensagem foi enviada | Registrar o aviso ao clicar no botão |
 | 2026-10-29 | O estado de cada diálogo fica num componente dentro do `DialogContent` | O Radix só monta o `DialogContent` com o diálogo aberto, então cada abertura começa do zero sem código extra, e a animação de saída continua | `key` que muda a cada abertura, em cada página; montar o diálogo só quando aberto, que corta a animação |
 | 2026-10-29 | Quem cria o usuário define a senha, e o diálogo mostra o endereço da loja para passar adiante | É o que a API oferece hoje, e uma pessoa nova não sabe o endereço da loja | Convite por e-mail, que precisa de envio de e-mail na API |
+| 2026-10-30 | O painel abre no Início (dashboard), e não mais na lista de OS | Agora existe o dashboard, e ele leva às listas que pedem ação | Manter a lista de OS como entrada |
+| 2026-10-30 | Gráfico em HTML, sem biblioteca, por enquanto | Medido: um gráfico de barras com o recharts (base dos gráficos do shadcn) soma 108 kB comprimidos, contra 3,8 kB da página Início inteira, que é a primeira depois do login. Para uma série de barras e uma lista, não compensa. Rever quando vierem gráficos mais ricos (linhas acumuladas, barras empilhadas, escolha de período) | recharts, pelo componente de gráfico do shadcn |
+| 2026-10-30 | Técnico e atendente não veem o faturamento | Segue a matriz de papéis da API; o front nem pede a rota | Mostrar com os valores escondidos |
 | 2026-10-28 | Técnico escolhido entre os usuários ativos que não são atendentes | Em loja pequena o dono também conserta; o atendente não | Só quem tem o papel de técnico |
 | 2026-10-28 | O rodapé dos itens mostra o valor que vale no total (final, orçamento ou soma dos itens) | É a regra da API; sem isso, o total parece uma soma errada | Calcular o total no front |
 | 2026-10-28 | Datas sem hora (previsão, garantia) mostradas em UTC | A API guarda o dia à meia-noite UTC; no fuso do Brasil ele apareceria como o dia anterior | Mandar a data com fuso |

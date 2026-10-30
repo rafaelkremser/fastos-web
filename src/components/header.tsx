@@ -1,4 +1,4 @@
-import { ClipboardList, IdCard, Users, Wrench } from 'lucide-react'
+import { ClipboardList, House, IdCard, Users, Wrench } from 'lucide-react'
 
 import { AccountMenu } from './account-menu'
 import { NavLink } from './nav-link'
@@ -18,19 +18,24 @@ export function Header() {
           className="hidden h-6 sm:block data-vertical:self-center"
         />
 
-        {/* On phones the links show only their icons */}
-        <nav className="flex items-center sm:space-x-4 lg:space-x-6">
+        {/* Phones and tablets get only the icons: the four labels and the
+            store's name only fit in one line on wider screens */}
+        <nav className="flex items-center lg:space-x-2 xl:space-x-6">
+          <NavLink to="/">
+            <House className="size-4" />
+            <span className="max-lg:sr-only">Início</span>
+          </NavLink>
           <NavLink to="/service-orders">
             <ClipboardList className="size-4" />
-            <span className="sr-only sm:not-sr-only">Ordens de serviço</span>
+            <span className="max-lg:sr-only">Ordens de serviço</span>
           </NavLink>
           <NavLink to="/customers">
             <Users className="size-4" />
-            <span className="sr-only sm:not-sr-only">Clientes</span>
+            <span className="max-lg:sr-only">Clientes</span>
           </NavLink>
           <NavLink to="/team">
             <IdCard className="size-4" />
-            <span className="sr-only sm:not-sr-only">Equipe</span>
+            <span className="max-lg:sr-only">Equipe</span>
           </NavLink>
         </nav>
 
