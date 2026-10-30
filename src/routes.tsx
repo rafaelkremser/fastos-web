@@ -32,8 +32,13 @@ const tenantRoutes: RouteObject[] = [
     errorElement: <ErrorPage />,
     hydrateFallbackElement: null,
     children: [
-      // Until there is a dashboard (F5), the panel opens on the orders
-      { index: true, element: <Navigate to="/service-orders" replace /> },
+      {
+        index: true,
+        lazy: () =>
+          import('./pages/app/dashboard/dashboard').then((module) => ({
+            Component: module.Dashboard,
+          })),
+      },
       {
         path: 'service-orders',
         lazy: () =>

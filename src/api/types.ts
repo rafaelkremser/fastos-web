@@ -144,3 +144,14 @@ export interface ServiceOrderHistoryEntry {
   newValue: string | null
   createdAt: string
 }
+
+// Delivered orders and what they add up to (the order totals)
+export interface DeliveredTotals {
+  delivered: number
+  revenue: number
+}
+
+export interface DailyDeliveredTotals extends DeliveredTotals {
+  // YYYY-MM-DD, in Brazil's time
+  day: string
+}

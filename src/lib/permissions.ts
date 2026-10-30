@@ -21,3 +21,8 @@ export function canAssignTechnician(role: UserRole | undefined) {
 export function canCreateUsers(role: UserRole | undefined) {
   return role === 'OWNER' || role === 'ADMIN'
 }
+
+// The store's revenue, on the dashboard
+export function canSeeRevenue(role: UserRole | undefined) {
+  return role === 'OWNER' || role === 'ADMIN'
+}
