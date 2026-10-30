@@ -19,7 +19,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F3.1 | Aviso ao cliente: marca e filtro na lista, registrar aviso na OS, atalho de WhatsApp com mensagem pronta | Feito (junto do F3, no [PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F4 | Equipe: listar e criar usuários | Feito ([PR #5](https://github.com/rafaelkremser/fastos-web/pull/5)) |
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
-| F5.1 | Métricas por técnico: em andamento, atrasadas, concluídas e entregues no mês | A decidir (ver "F5.1: métricas por técnico") |
+| F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
 | F6 | Testes de ponta a ponta (Playwright) e deploy | **Próximo** |
 
 ### F0: base do projeto
@@ -107,23 +107,14 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 - **Cabeçalho:** com quatro links, os nomes só aparecem a partir de 1024 px; abaixo disso, só os ícones. Em 640–1023 px os nomes quebravam linha ou empurravam o menu da loja.
 - **Testado contra a API real,** pelo front da 5173, com entregas espalhadas num branch temporário: os números bateram com a conta feita à mão, a dica do gráfico, a tabela, os dois temas, celular, tablet e o técnico vendo só a operação (sem nem pedir o faturamento).
 
-### F5.1: métricas por técnico (a decidir)
+### F5.1: por técnico e por etapa
 
-Pedido do dono do projeto em 2026-10-30, anotado para pensar depois do F5.
+Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o técnico não vê nem os próprios números.
 
-- **Proposta:** uma tabela no Início, uma linha por técnico, com em andamento, atrasadas, concluídas no mês e entregues no mês, e uma linha "Sem técnico" para as OS sem ninguém. Tabela, e não gráfico, porque são várias medidas por pessoa, em escalas diferentes; uma barrinha em cada número ajuda a comparar.
-- **Concluídas e entregues são coisas diferentes:** "concluída" (a OS ficou pronta, pela data em que ficou pronta) mede o trabalho do técnico; "entregue" depende de o cliente vir buscar. Vale mostrar as duas.
-- **Crédito:** a OS conta para o técnico atribuído agora. Se trocou de técnico no meio, conta para o último.
-- **Decidido pelo dono do projeto:**
-  - o técnico vê só a própria linha, com as OS dele; dono e administrador veem a tabela toda;
-  - entra o faturamento por técnico, só para dono e administrador.
-- **Tempo de conserto, ainda em discussão:** a média "da entrada até ficar pronta" por pessoa é injusta, porque mistura o que não depende do técnico (esperar peça, esperar o cliente aprovar o orçamento, conserto difícil), e vira ranking. Proposta:
-  - começar pelo tempo de cada etapa para a loja toda (quanto as OS ficam em "Aguardando peças", "Aguardando aprovação", "Em reparo"), que mostra onde o trabalho trava sem apontar pessoas;
-  - se um dia entrar o tempo por técnico, contar só o tempo em que a OS esteve com ele (fora as esperas), usar a mediana, mostrar a cada técnico só o dele e não fazer ranking;
-  - a equipe deve saber o que é medido.
-
-  Dá para calcular pelo histórico de mudanças de status, que já guarda a hora de cada mudança.
-- **Precisa da API:** A13.
+- **Por técnico:** uma tabela no Início com em andamento e atrasadas agora, e concluídas, entregues e faturamento no mês; o nome abre a lista de OS do técnico. As OS sem ninguém aparecem na linha "Sem técnico". Tabela, e não gráfico, porque são vários números por pessoa, em escalas diferentes; no celular, ela rola de lado dentro do cartão.
+- **Concluídas e entregues são coisas diferentes:** "concluída" (ficou pronta no mês) mede o trabalho do técnico; "entregue" depende de o cliente vir buscar.
+- **Tempo em cada etapa,** ao lado de "OS na loja": quanto as OS costumam ficar em cada status (a mediana dos últimos 90 dias), para a loja toda, com quantas OS entraram na conta. A barra mais longa mostra onde o trabalho trava. Não há tempo por técnico: mistura o que não depende dele (peça, aprovação do cliente, conserto difícil) e viraria ranking.
+- **Testado contra a API real,** num branch temporário com técnicos atribuídos e um histórico de status montado à mão: a tabela e os tempos bateram com a conta, nas larguras de celular, tablet e computador, e o técnico vê só a parte operacional, sem nem pedir as rotas novas.
 
 ## Mudanças na API
 
@@ -140,7 +131,7 @@ Pedido do dono do projeto em 2026-10-30, anotado para pensar depois do F5.
 | A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
 | A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Pendente |
 | A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Pendente |
-| A13 | Métricas por técnico: em andamento, atrasadas, concluídas, entregues e faturamento no período, por técnico, mais as sem técnico. O técnico recebe só os próprios números; o faturamento, só dono e administrador | F5.1 | A decidir |
+| A13 | Métricas por técnico (`GET /metrics/technicians`) e tempo em cada etapa (`GET /metrics/stage-times`), só para dono e administrador | F5.1 | Feito ([fastos-api #21](https://github.com/rafaelkremser/fastos-api/pull/21)) |
 | A9 | Aviso ao cliente: a OS guarda quando a loja avisou o cliente, mudar o status apaga, `POST /service-orders/:id/notices` registra (com canal e observação, no histórico) e a lista filtra `needsCustomerNotice` | F3.1: marca "Avisar cliente", filtro "Precisa avisar", botão de registrar aviso e atalho de WhatsApp | Feito ([fastos-api #19](https://github.com/rafaelkremser/fastos-api/pull/19)); front no F3.1 |
 
 ## Débitos conhecidos
@@ -195,6 +186,8 @@ Pedido do dono do projeto em 2026-10-30, anotado para pensar depois do F5.
 | 2026-10-29 | Quem cria o usuário define a senha, e o diálogo mostra o endereço da loja para passar adiante | É o que a API oferece hoje, e uma pessoa nova não sabe o endereço da loja | Convite por e-mail, que precisa de envio de e-mail na API |
 | 2026-10-30 | O painel abre no Início (dashboard), e não mais na lista de OS | Agora existe o dashboard, e ele leva às listas que pedem ação | Manter a lista de OS como entrada |
 | 2026-10-30 | Gráfico em HTML, sem biblioteca, por enquanto | Medido: um gráfico de barras com o recharts (base dos gráficos do shadcn) soma 108 kB comprimidos, contra 3,8 kB da página Início inteira, que é a primeira depois do login. Para uma série de barras e uma lista, não compensa. Rever quando vierem gráficos mais ricos (linhas acumuladas, barras empilhadas, escolha de período) | recharts, pelo componente de gráfico do shadcn |
+| 2026-10-30 | Números por técnico e tempo por etapa só para dono e administrador | Decisão do dono do projeto, para não virar comparação dentro da equipe; antes estava previsto o técnico ver a própria linha | O técnico ver a própria linha |
+| 2026-10-30 | Tempo por etapa para a loja, e não tempo de conserto por técnico | Mostra onde o trabalho trava sem apontar pessoas, e não cobra o técnico pelo que não depende dele | Tempo médio por técnico, da entrada até ficar pronta |
 | 2026-10-30 | Técnico e atendente não veem o faturamento | Segue a matriz de papéis da API; o front nem pede a rota | Mostrar com os valores escondidos |
 | 2026-10-28 | Técnico escolhido entre os usuários ativos que não são atendentes | Em loja pequena o dono também conserta; o atendente não | Só quem tem o papel de técnico |
 | 2026-10-28 | O rodapé dos itens mostra o valor que vale no total (final, orçamento ou soma dos itens) | É a regra da API; sem isso, o total parece uma soma errada | Calcular o total no front |

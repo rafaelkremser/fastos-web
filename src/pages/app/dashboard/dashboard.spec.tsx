@@ -9,6 +9,8 @@ import {
   getRevenueMetrics,
   type RevenueMetrics,
 } from '@/api/get-revenue-metrics'
+import { getStageTimes } from '@/api/get-stage-times'
+import { getTechnicianMetrics } from '@/api/get-technician-metrics'
 import { getUser } from '@/api/get-user'
 import type { UserRole } from '@/api/types'
 
@@ -20,6 +22,10 @@ vi.mock('@/api/get-operations-metrics', () => ({
   getOperationsMetrics: vi.fn(),
 }))
 vi.mock('@/api/get-revenue-metrics', () => ({ getRevenueMetrics: vi.fn() }))
+vi.mock('@/api/get-stage-times', () => ({ getStageTimes: vi.fn() }))
+vi.mock('@/api/get-technician-metrics', () => ({
+  getTechnicianMetrics: vi.fn(),
+}))
 vi.mock('@/api/get-user', () => ({ getUser: vi.fn() }))
 
 const operations: OperationsMetrics = {
@@ -82,6 +88,25 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'], now: new Date(2026, 9, 30, 12) })
   vi.mocked(getOperationsMetrics).mockResolvedValue(operations)
   vi.mocked(getRevenueMetrics).mockResolvedValue(revenue)
+  vi.mocked(getTechnicianMetrics).mockResolvedValue({
+    technicians: [
+      {
+        technicianId: 't1',
+        name: 'Carlos Técnico',
+        active: 2,
+        late: 1,
+        completed: 2,
+        delivered: 1,
+        revenue: 520,
+      },
+    ],
+    unassigned: { active: 4, late: 0, completed: 0, delivered: 0, revenue: 0 },
+  })
+  vi.mocked(getStageTimes).mockResolvedValue([
+    { status: 'OPEN', stays: 3, medianHours: 2 },
+    { status: 'APPROVED', stays: 0, medianHours: null },
+    { status: 'WAITING_PARTS', stays: 1, medianHours: 72 },
+  ])
 })
 
 afterEach(() => {
@@ -127,7 +152,11 @@ describe('Dashboard', () => {
     await screen.findByText('2 atrasadas')
 
     expect(screen.queryByText('Faturamento do mês')).toBeNull()
+    expect(screen.queryByText('Por técnico')).toBeNull()
+    expect(screen.queryByText('Tempo em cada etapa')).toBeNull()
     expect(getRevenueMetrics).not.toHaveBeenCalled()
+    expect(getTechnicianMetrics).not.toHaveBeenCalled()
+    expect(getStageTimes).not.toHaveBeenCalled()
   })
 
   it('should show the revenue against the same stretch of last month', async () => {
@@ -165,7 +194,11 @@ describe('Dashboard', () => {
     await user.keyboard('{ArrowLeft}{ArrowLeft}')
     expect(chart.getByRole('img', { name: /^28\/10/ })).toHaveFocus()
 
-    const table = within(screen.getByRole('table'))
+    const table = within(
+      within(
+        screen.getByRole('region', { name: 'Faturamento nos últimos 30 dias' }),
+      ).getByRole('table'),
+    )
     expect(table.getAllByRole('row')).toHaveLength(31)
     expect(table.getByText(money('R$ 520,00'))).toBeInTheDocument()
   })
@@ -186,5 +219,41 @@ describe('Dashboard', () => {
         'Nada entregue no mesmo período de setembro',
       ),
     ).toBeInTheDocument()
+  })
+
+  it("should show each technician's numbers to the managers", async () => {
+    renderAs('ADMIN')
+
+    const table = within(
+      await screen.findByRole('region', { name: 'Por técnico' }),
+    )
+    const carlos = within(
+      table.getByRole('link', { name: 'Carlos Técnico' }).closest('tr')!,
+    )
+    expect(table.getByRole('link', { name: 'Carlos Técnico' })).toHaveAttribute(
+      'href',
+      '/service-orders?technicianId=t1',
+    )
+    expect(
+      carlos
+        .getAllByRole('cell')
+        .map((cell) => cell.textContent?.replace(/\s/g, ' ')),
+    ).toEqual(['Carlos Técnico', '2', '1', '2', '1', 'R$ 520,00'])
+
+    const unassigned = within(table.getByText('Sem técnico').closest('tr')!)
+    expect(unassigned.getAllByRole('cell')[1]).toHaveTextContent('4')
+    expect(table.getByText(/faturamento em outubro/)).toBeInTheDocument()
+  })
+
+  it('should show how long orders stay in each stage', async () => {
+    renderAs('OWNER')
+
+    const stages = within(
+      await screen.findByRole('region', { name: 'Tempo em cada etapa' }),
+    )
+    const waitingParts = stages.getByText('Aguardando peças').closest('li')!
+    expect(waitingParts).toHaveTextContent('3 dias')
+    expect(waitingParts).toHaveTextContent('1 OS')
+    expect(stages.getByText('Aprovada').closest('li')).toHaveTextContent('—')
   })
 })

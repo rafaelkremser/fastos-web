@@ -10,22 +10,28 @@ import { Link } from 'react-router'
 
 import { getOperationsMetrics } from '@/api/get-operations-metrics'
 import { getRevenueMetrics } from '@/api/get-revenue-metrics'
+import { getStageTimes } from '@/api/get-stage-times'
+import { getTechnicianMetrics } from '@/api/get-technician-metrics'
 import { PageTitle } from '@/components/page-title'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { formatMoney } from '@/lib/format'
-import { canSeeRevenue } from '@/lib/permissions'
+import { canSeeRevenue, canSeeTeamMetrics } from '@/lib/permissions'
 
 import { ChangeNote } from './change-note'
 import { MetricCard } from './metric-card'
 import { RevenueChart } from './revenue-chart'
+import { StageTimes } from './stage-times'
 import { StatusBreakdown } from './status-breakdown'
+import { TechnicianTable } from './technician-table'
 
 // Where the panel opens. Everyone sees how the work stands; the owner and
-// admins also see the money
+// admins also see the money, each technician's numbers and the time in each
+// stage
 export function Dashboard() {
   const { data: user } = useCurrentUser()
   const showRevenue = canSeeRevenue(user?.role)
+  const showTeam = canSeeTeamMetrics(user?.role)
 
   const { data: operations } = useQuery({
     queryKey: ['metrics', 'operations'],
@@ -36,6 +42,18 @@ export function Dashboard() {
     queryKey: ['metrics', 'revenue'],
     queryFn: getRevenueMetrics,
     enabled: showRevenue,
+  })
+
+  const { data: team } = useQuery({
+    queryKey: ['metrics', 'technicians'],
+    queryFn: getTechnicianMetrics,
+    enabled: showTeam,
+  })
+
+  const { data: stages } = useQuery({
+    queryKey: ['metrics', 'stage-times'],
+    queryFn: getStageTimes,
+    enabled: showTeam,
   })
 
   return (
@@ -136,11 +154,31 @@ export function Dashboard() {
           </div>
         )}
 
-        {operations ? (
-          <StatusBreakdown byStatus={operations.byStatus} />
-        ) : (
-          <Skeleton className="h-72 w-full" />
-        )}
+        {showTeam &&
+          (team ? (
+            <TechnicianTable
+              technicians={team.technicians}
+              unassigned={team.unassigned}
+            />
+          ) : (
+            <Skeleton className="h-48 w-full" />
+          ))}
+
+        {/* How many in each status, and how long they stay there */}
+        <div className={showTeam ? 'grid gap-4 lg:grid-cols-2' : undefined}>
+          {operations ? (
+            <StatusBreakdown byStatus={operations.byStatus} />
+          ) : (
+            <Skeleton className="h-72 w-full" />
+          )}
+
+          {showTeam &&
+            (stages ? (
+              <StageTimes stages={stages} />
+            ) : (
+              <Skeleton className="h-72 w-full" />
+            ))}
+        </div>
       </div>
     </>
   )
