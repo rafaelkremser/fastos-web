@@ -20,7 +20,8 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F4 | Equipe: listar e criar usuários | Feito ([PR #5](https://github.com/rafaelkremser/fastos-web/pull/5)) |
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
 | F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
-| F6 | Testes de ponta a ponta (Playwright) e deploy | **Próximo** |
+| F6 | Testes de ponta a ponta (Playwright) contra a API e um banco reais | Feito ([PR #8](https://github.com/rafaelkremser/fastos-web/pull/8)) |
+| F7 | Deploy: hospedagem da API e do front, domínio, e o checklist do primeiro deploy da API | **Próximo**: começa quando o dono do projeto escolher a hospedagem e o domínio |
 
 ### F0: base do projeto
 
@@ -116,6 +117,30 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 - **Tempo em cada etapa,** ao lado de "OS na loja": quanto as OS costumam ficar em cada status (a mediana dos últimos 90 dias), para a loja toda, com quantas OS entraram na conta. A barra mais longa mostra onde o trabalho trava. Não há tempo por técnico: mistura o que não depende dele (peça, aprovação do cliente, conserto difícil) e viraria ranking.
 - **Testado contra a API real,** num branch temporário com técnicos atribuídos e um histórico de status montado à mão: a tabela e os tempos bateram com a conta, nas larguras de celular, tablet e computador, e o técnico vê só a parte operacional, sem nem pedir as rotas novas.
 
+### F6: testes de ponta a ponta
+
+- **`npm run test:e2e`:**
+  - compila a API da pasta ao lado;
+  - cria um branch temporário do Neon a partir do `dev` e aplica nele as migrations;
+  - sobe a API na porta 3335 e o front na 5175 e roda o Playwright no Chromium;
+  - apaga o branch no fim. Se o script parar no meio, o branch expira em duas horas.
+
+  Não toca no `dev` nem nas portas do `npm run dev`. Como usar está no README.
+- **O que os testes cobrem** (7 testes em uns 40 segundos; a rodada inteira, com a compilação da API e o banco, leva uns 2 minutos):
+  - **cadastro e login:** cadastro da loja no site público, com o endereço sugerido pelo nome; login no subdomínio; a sessão voltando depois de recarregar; o "Sair";
+  - **o que o login recusa:** endereço já em uso, senha errada, e a conta de uma loja tentando entrar em outra;
+  - **a OS completa, com o dono:**
+    - cliente, aparelho, abertura, técnico e item;
+    - "Pronta", aviso ao cliente e "Entregue";
+    - no Início, a linha do técnico com a entrega e o faturamento;
+  - **os papéis:**
+    - o técnico trabalha na OS sem ver o faturamento nem criar usuários;
+    - a atendente só muda o status e registra avisos;
+    - o dono cria um técnico, que entra em seguida.
+- **Os testes dividem uma loja.** Ela é criada pela API no começo da rodada, e cada teste cria os próprios clientes e técnicos, com nomes e telefones únicos. O que não é assunto do teste entra pela API, como no `seed:dev`: a loja, a equipe, uma OS para o técnico abrir.
+- **Cada pessoa faz login uma vez por rodada,** pela API, e o teste já começa com o token de renovação no navegador. A API aceita só 10 logins por minuto do mesmo IP, por isso os testes rodam um de cada vez.
+- **Encontrado no teste e corrigido:** o aviso "No `HydrateFallback` element provided" do React Router saía em toda tela do painel. O `hydrateFallbackElement: null` das rotas não conta como fallback; agora é um componente que não mostra nada, com o mesmo efeito na tela.
+
 ## Mudanças na API
 
 | # | Mudança | Precisa para | Status |
@@ -154,6 +179,9 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 - **Os tokens ficam no `localStorage`,** então um script injetado no site (XSS) conseguiria lê-los. É o mesmo débito do roadmap da API; a alternativa é o token de renovação num cookie que o JavaScript não lê.
 - **Sair só apaga os tokens deste navegador:** a API não revoga, então uma cópia do token de renovação vale até completar 7 dias do login (débito da API, P3-1).
 - **A CLI do shadcn traz 3 falhas de gravidade baixa,** no `deepmerge`. Ela fica nas dependências de desenvolvimento, e nada dela chega ao navegador: `npm audit --omit=dev` não acusa nada.
+- **Os testes de ponta a ponta só rodam nesta máquina:** precisam do CLI do Neon com login e da API na pasta ao lado. Para rodar no GitHub a cada PR, faltam uma chave do Neon nos segredos do repositório e o checkout dos dois repositórios.
+- **O front não testa o isolamento entre lojas por ID:** a tela não tem como pedir a OS de outra loja. Esse teste cabe aos testes de ponta a ponta da API (P2-5 no roadmap dela), que ainda não existem.
+- **Cada rodada dos testes de ponta a ponta compila a API,** apagando e refazendo o `dist` dela. Um `npm run dev` da API ligado continua funcionando, porque já carregou o código.
 
 ## Decisões
 
@@ -189,6 +217,9 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | 2026-10-30 | Números por técnico e tempo por etapa só para dono e administrador | Decisão do dono do projeto, para não virar comparação dentro da equipe; antes estava previsto o técnico ver a própria linha | O técnico ver a própria linha |
 | 2026-10-30 | Tempo por etapa para a loja, e não tempo de conserto por técnico | Mostra onde o trabalho trava sem apontar pessoas, e não cobra o técnico pelo que não depende dele | Tempo médio por técnico, da entrada até ficar pronta |
 | 2026-10-30 | Técnico e atendente não veem o faturamento | Segue a matriz de papéis da API; o front nem pede a rota | Mostrar com os valores escondidos |
+| 2026-10-30 | Testes de ponta a ponta contra a API e um banco reais, num branch do Neon criado e apagado a cada rodada | Decisão do dono do projeto. Pegam o que os testes unitários não pegam (CORS, subdomínio, renovação do token, as respostas de verdade) sem sujar o `dev`. Substitui o plano de usar o MSW no F6 | API simulada pelo Playwright ou pelo MSW; um branch fixo para os testes |
+| 2026-10-30 | Só o Chromium nos testes de ponta a ponta | É o motor do Chrome e do Edge; cada navegador a mais repetiria a rodada inteira | Firefox e WebKit |
+| 2026-10-30 | Deploy numa etapa própria (F7), separada dos testes | Depende de contratar a hospedagem e escolher o domínio, o que fica com o dono do projeto | Deixar o F6 aberto até o deploy |
 | 2026-10-28 | Técnico escolhido entre os usuários ativos que não são atendentes | Em loja pequena o dono também conserta; o atendente não | Só quem tem o papel de técnico |
 | 2026-10-28 | O rodapé dos itens mostra o valor que vale no total (final, orçamento ou soma dos itens) | É a regra da API; sem isso, o total parece uma soma errada | Calcular o total no front |
 | 2026-10-28 | Datas sem hora (previsão, garantia) mostradas em UTC | A API guarda o dia à meia-noite UTC; no fuso do Brasil ele apareceria como o dia anterior | Mandar a data com fuso |

@@ -11,6 +11,16 @@
       "rules": {
         "react/only-export-components": "off"
       }
+    },
+    {
+      // Playwright's fixtures hand out a use() that is not React's, and read
+      // what a fixture needs from the pattern of its first parameter, even
+      // when it needs nothing: ({}, use)
+      "files": ["e2e/**"],
+      "rules": {
+        "react/rules-of-hooks": "off",
+        "no-empty-pattern": "off"
+      }
     }
   ]
 }

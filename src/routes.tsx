@@ -30,7 +30,9 @@ const tenantRoutes: RouteObject[] = [
     path: '/',
     element: <AppLayout />,
     errorElement: <ErrorPage />,
-    hydrateFallbackElement: null,
+    // Nothing while the first page's code loads. A null element would not
+    // count, and React Router would warn on every page
+    HydrateFallback: () => null,
     children: [
       {
         index: true,

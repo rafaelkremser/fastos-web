@@ -25,3 +25,7 @@ dist-ssr
 
 # Vitest
 .vitest/
+
+# Playwright
+test-results/
+playwright-report/
