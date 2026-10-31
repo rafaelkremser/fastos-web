@@ -12,7 +12,7 @@ const router = createRouter(getCurrentTenantSlug())
 
 export function App() {
   return (
-    <ThemeProvider storageKey="fastos-theme" defaultTheme="system">
+    <ThemeProvider storageKey="consertiva-theme" defaultTheme="system">
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>

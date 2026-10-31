@@ -76,7 +76,7 @@ describe('api', () => {
 
   it('should get an access token before the first request after a reload', async () => {
     // A reload keeps only the refresh token
-    localStorage.setItem('fastos-refresh-token', 'refresh-1')
+    localStorage.setItem('consertiva-refresh-token', 'refresh-1')
     fakeApi = apiWithExpiredToken('none', 'access-2')
 
     await api.get('/user')
@@ -129,7 +129,7 @@ describe('api', () => {
   })
 
   it('should not send requests that would fail once the session is over', async () => {
-    localStorage.setItem('fastos-refresh-token', 'refresh-1')
+    localStorage.setItem('consertiva-refresh-token', 'refresh-1')
     fakeApi = () => ({ status: 401 })
 
     const results = await Promise.allSettled([

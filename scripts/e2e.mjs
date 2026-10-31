@@ -1,6 +1,6 @@
 // Runs the end-to-end tests against the real API, on a database of their own:
 //
-//   1. builds the API in ../fastos-api (FASTOS_API_DIR changes it)
+//   1. builds the API in ../fastos-api (E2E_API_DIR changes it)
 //   2. creates a temporary Neon branch from dev (E2E_NEON_PARENT changes it).
 //      It expires in two hours, in case this script stops before deleting it
 //   3. applies the API's migrations to the branch
@@ -18,8 +18,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 const webDir = path.resolve(import.meta.dirname, '..')
-const apiDir =
-  process.env.FASTOS_API_DIR ?? path.resolve(webDir, '../fastos-api')
+const apiDir = process.env.E2E_API_DIR ?? path.resolve(webDir, '../fastos-api')
 const parent = process.env.E2E_NEON_PARENT ?? 'dev'
 const branch = `e2e-${new Date().toISOString().replace(/\D/g, '').slice(0, 14)}`
 const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
@@ -84,7 +83,7 @@ try {
     ...process.env,
     E2E_DATABASE_URL: connectionString(true),
     E2E_DATABASE_URL_UNPOOLED: connectionString(false),
-    FASTOS_API_DIR: apiDir,
+    E2E_API_DIR: apiDir,
   }
 
   console.log('Aplicando as migrations da API...')

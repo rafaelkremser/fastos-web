@@ -7,13 +7,13 @@ test('should sign up a store and sign in on its own address', async ({
 }) => {
   const id = uniqueId()
   const slug = `oficina-${id}`
-  const owner = { email: `${id}@fastos.test`, password: `senha-${id}` }
+  const owner = { email: `${id}@consertiva.test`, password: `senha-${id}` }
 
   await page.goto('/sign-up')
   await page.getByLabel('Nome da loja').fill(`Oficina ${id}`)
   // The address comes from the name
   await expect(page.getByLabel('Endereço da loja')).toHaveValue(slug)
-  await page.getByLabel('E-mail da loja').fill(`contato-${id}@fastos.test`)
+  await page.getByLabel('E-mail da loja').fill(`contato-${id}@consertiva.test`)
   await page.getByLabel('Seu nome').fill('Rafaela Dona')
   await page.getByLabel('Seu e-mail').fill(owner.email)
   await page.getByLabel('Senha').fill(owner.password)
@@ -38,9 +38,9 @@ test('should not take an address in use', async ({ page, store }) => {
   await page.goto('/sign-up')
   await page.getByLabel('Nome da loja').fill('Outra oficina')
   await page.getByLabel('Endereço da loja').fill(store.slug)
-  await page.getByLabel('E-mail da loja').fill(`${uniqueId()}@fastos.test`)
+  await page.getByLabel('E-mail da loja').fill(`${uniqueId()}@consertiva.test`)
   await page.getByLabel('Seu nome').fill('Outra pessoa')
-  await page.getByLabel('Seu e-mail').fill(`${uniqueId()}@fastos.test`)
+  await page.getByLabel('Seu e-mail').fill(`${uniqueId()}@consertiva.test`)
   await page.getByLabel('Senha').fill('senha-forte')
   await page.getByRole('button', { name: 'Cadastrar loja' }).click()
 

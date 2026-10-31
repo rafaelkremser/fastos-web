@@ -86,7 +86,7 @@ describe('Sign In', () => {
   })
 
   it('should go straight to the panel when already signed in', async () => {
-    localStorage.setItem('fastos-refresh-token', 'refresh-1')
+    localStorage.setItem('consertiva-refresh-token', 'refresh-1')
 
     renderSignIn()
 

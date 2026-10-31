@@ -1,7 +1,7 @@
 // The access token lives only in memory and is gone when the page reloads.
 // The refresh token stays in localStorage, which each store's subdomain keeps
 // apart, so being signed in to one store says nothing about another
-const REFRESH_TOKEN_KEY = 'fastos-refresh-token'
+const REFRESH_TOKEN_KEY = 'consertiva-refresh-token'
 
 let accessToken: string | null = null
 

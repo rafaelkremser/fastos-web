@@ -15,8 +15,7 @@ if (!E2E_DATABASE_URL || !E2E_DATABASE_URL_UNPOOLED) {
 
 // The API is the one in the folder beside this one, as it is checked out
 const apiDir =
-  process.env.FASTOS_API_DIR ??
-  path.resolve(import.meta.dirname, '../fastos-api')
+  process.env.E2E_API_DIR ?? path.resolve(import.meta.dirname, '../fastos-api')
 
 export default defineConfig({
   testDir: './e2e',

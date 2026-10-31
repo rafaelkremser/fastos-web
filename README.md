@@ -1,6 +1,6 @@
-# FastOS Web
+# Consertiva Web
 
-Frontend do FastOS, o sistema de ordens de serviço para assistências técnicas. Ele conversa com a [FastOS API](https://github.com/rafaelkremser/fastos-api).
+Frontend da Consertiva, o sistema de ordens de serviço para assistências técnicas. Ele conversa com a [Consertiva API](https://github.com/rafaelkremser/fastos-api).
 
 ## Uma loja por subdomínio
 
@@ -47,7 +47,7 @@ As variáveis de ambiente de desenvolvimento ficam no `.env.development`, que é
 
 Os testes em `e2e/` usam o Playwright e passam pelas telas como uma pessoa faria, contra a API e um banco reais. O `npm run test:e2e`:
 
-1. compila a API da pasta ao lado (`../fastos-api`; `FASTOS_API_DIR` muda o caminho);
+1. compila a API da pasta ao lado (`../fastos-api`; `E2E_API_DIR` muda o caminho);
 2. cria um branch temporário do Neon a partir do `dev` e aplica nele as migrations da API;
 3. sobe a API na porta 3335 e o front na 5175, então o `npm run dev` pode continuar ligado;
 4. roda os testes, cada rodada com lojas novas, e apaga o branch no fim. Se o script parar no meio, o branch expira sozinho em duas horas.

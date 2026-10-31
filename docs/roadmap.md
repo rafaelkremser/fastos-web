@@ -1,6 +1,6 @@
-# Roadmap do FastOS Web
+# Roadmap da Consertiva Web
 
-O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanStack Query, e o adapta para o FastOS.
+O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanStack Query, e o adapta para a Consertiva.
 
 ## Como usar este documento
 
@@ -21,7 +21,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
 | F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
 | F6 | Testes de ponta a ponta (Playwright) contra a API e um banco reais | Feito ([PR #8](https://github.com/rafaelkremser/fastos-web/pull/8)) |
-| F7 | Deploy: hospedagem da API e do front, domínio, e o checklist do primeiro deploy da API | **Próximo**: começa quando o dono do projeto escolher a hospedagem e o domínio |
+| F7 | Deploy: hospedagem da API e do front, domínio, e o checklist do primeiro deploy da API | **Próximo**: o domínio é o `consertiva.com.br`; começa quando a hospedagem for contratada |
 
 ### F0: base do projeto
 
@@ -220,6 +220,7 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | 2026-10-30 | Testes de ponta a ponta contra a API e um banco reais, num branch do Neon criado e apagado a cada rodada | Decisão do dono do projeto. Pegam o que os testes unitários não pegam (CORS, subdomínio, renovação do token, as respostas de verdade) sem sujar o `dev`. Substitui o plano de usar o MSW no F6 | API simulada pelo Playwright ou pelo MSW; um branch fixo para os testes |
 | 2026-10-30 | Só o Chromium nos testes de ponta a ponta | É o motor do Chrome e do Edge; cada navegador a mais repetiria a rodada inteira | Firefox e WebKit |
 | 2026-10-30 | Deploy numa etapa própria (F7), separada dos testes | Depende de contratar a hospedagem e escolher o domínio, o que fica com o dono do projeto | Deixar o F6 aberto até o deploy |
+| 2026-10-31 | O produto passa a se chamar Consertiva, no domínio `consertiva.com.br` | O `fastos.com.br` tem dono desde dezembro de 2025, e "Fastos" já é um SaaS jurídico em espanhol (`fastos.app`). Como o domínio aparece no endereço de toda loja, ele precisava ser o nome do produto. "Consertiva" não aparece na busca de marcas do INPI, tem uma pronúncia só, e o `.com.br` e o `.com` estavam livres. As pastas e os repositórios continuam `fastos-api` e `fastos-web` | Manter FastOS com um domínio alternativo; AssistecApp ("assistec" tem 141 pedidos no INPI, inclusive de software, e o INPI vem negando o nome puro); Consertio (duas pronúncias possíveis); Bancadix e Bancadeiro |
 | 2026-10-28 | Técnico escolhido entre os usuários ativos que não são atendentes | Em loja pequena o dono também conserta; o atendente não | Só quem tem o papel de técnico |
 | 2026-10-28 | O rodapé dos itens mostra o valor que vale no total (final, orçamento ou soma dos itens) | É a regra da API; sem isso, o total parece uma soma errada | Calcular o total no front |
 | 2026-10-28 | Datas sem hora (previsão, garantia) mostradas em UTC | A API guarda o dia à meia-noite UTC; no fuso do Brasil ele apareceria como o dia anterior | Mandar a data com fuso |

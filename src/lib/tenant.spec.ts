@@ -12,22 +12,24 @@ describe('buildAppUrl', () => {
 
   it('should leave the port out when there is none', () => {
     expect(
-      buildAppUrl('fastos.com.br', '/', { protocol: 'https:', port: '' }),
-    ).toBe('https://fastos.com.br/')
+      buildAppUrl('consertiva.com.br', '/', { protocol: 'https:', port: '' }),
+    ).toBe('https://consertiva.com.br/')
   })
 })
 
 describe('getTenantSlug', () => {
   it('should read the store from the subdomain', () => {
     expect(getTenantSlug('loja-a.localhost', 'localhost')).toBe('loja-a')
-    expect(getTenantSlug('loja-a.fastos.com.br', 'fastos.com.br')).toBe(
+    expect(getTenantSlug('loja-a.consertiva.com.br', 'consertiva.com.br')).toBe(
       'loja-a',
     )
   })
 
   it('should treat the app host and www as the public site', () => {
     expect(getTenantSlug('localhost', 'localhost')).toBeNull()
-    expect(getTenantSlug('www.fastos.com.br', 'fastos.com.br')).toBeNull()
+    expect(
+      getTenantSlug('www.consertiva.com.br', 'consertiva.com.br'),
+    ).toBeNull()
   })
 
   it('should ignore more than one level of subdomain', () => {
@@ -35,7 +37,9 @@ describe('getTenantSlug', () => {
   })
 
   it('should ignore hosts that only end with the same letters', () => {
-    expect(getTenantSlug('lojafastos.com.br', 'fastos.com.br')).toBeNull()
+    expect(
+      getTenantSlug('lojaconsertiva.com.br', 'consertiva.com.br'),
+    ).toBeNull()
     expect(getTenantSlug('loja-a.example.com', 'localhost')).toBeNull()
   })
 })
