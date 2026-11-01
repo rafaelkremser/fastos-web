@@ -21,7 +21,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
 | F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
 | F6 | Testes de ponta a ponta (Playwright) contra a API e um banco reais | Feito ([PR #8](https://github.com/rafaelkremser/fastos-web/pull/8)) |
-| F7 | Deploy: hospedagem da API e do front, domínio, e o checklist do primeiro deploy da API | **Em andamento**: domínio e Cloudflare prontos, arquivos do deploy no [PR #10](https://github.com/rafaelkremser/fastos-web/pull/10) e no [fastos-api #24](https://github.com/rafaelkremser/fastos-api/pull/24); falta a conta no Fly.io e publicar |
+| F7 | Deploy: hospedagem da API e do front, domínio, e o checklist do primeiro deploy da API | **Em andamento**: domínio e Cloudflare prontos, arquivos do deploy no [PR #9](https://github.com/rafaelkremser/fastos-web/pull/9) e no [fastos-api #22](https://github.com/rafaelkremser/fastos-api/pull/22); falta a conta no Fly.io e publicar |
 
 ### F0: base do projeto
 
@@ -169,7 +169,7 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | A5 | Código de erro nas respostas, para o front não depender do texto da mensagem | Opcional: hoje o cadastro separa "endereço em uso" de "e-mail em uso" pelo texto do 409 | Pendente |
 | A6 | Excluir cliente ou aparelho com OS responde 409, e não 500; excluir cliente sem OS leva os aparelhos junto | F2: sem isso, excluir quase qualquer cliente dava erro | Feito ([fastos-api #15](https://github.com/rafaelkremser/fastos-api/pull/15)) |
 | A7 | Rota pública que diz se uma loja existe (`GET /tenants/:slug`, com o nome da loja; 404 se não existe), com limite de tentativas | Login e "Acessar sua loja" avisarem "Loja não encontrada" e o login mostrar o nome da loja. Adiado: não é prioridade agora | Pendente |
-| A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Feito ([fastos-api #23](https://github.com/rafaelkremser/fastos-api/pull/23)) |
+| A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Feito ([fastos-api #22](https://github.com/rafaelkremser/fastos-api/pull/22)) |
 | A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
 | A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Pendente |
 | A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Pendente |
