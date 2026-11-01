@@ -18,7 +18,7 @@ import {
 import { API_URL, storeOrigin, storeUrl } from './config.ts'
 
 // The same key as src/lib/session.ts
-const REFRESH_TOKEN_KEY = 'fastos-refresh-token'
+const REFRESH_TOKEN_KEY = 'consertiva-refresh-token'
 
 export type Role = 'OWNER' | 'TECHNICIAN' | 'RECEPTIONIST'
 

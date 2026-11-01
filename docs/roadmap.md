@@ -1,6 +1,6 @@
-# Roadmap do FastOS Web
+# Roadmap da Consertiva Web
 
-O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanStack Query, e o adapta para o FastOS.
+O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanStack Query, e o adapta para a Consertiva.
 
 ## Como usar este documento
 
@@ -21,7 +21,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
 | F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
 | F6 | Testes de ponta a ponta (Playwright) contra a API e um banco reais | Feito ([PR #8](https://github.com/rafaelkremser/fastos-web/pull/8)) |
-| F7 | Deploy: hospedagem da API e do front, domínio, e o checklist do primeiro deploy da API | **Próximo**: começa quando o dono do projeto escolher a hospedagem e o domínio |
+| F7 | Deploy: hospedagem da API e do front, domínio, e o checklist do primeiro deploy da API | **Em andamento**: domínio e Cloudflare prontos, arquivos do deploy no [PR #9](https://github.com/rafaelkremser/fastos-web/pull/9) e no [fastos-api #22](https://github.com/rafaelkremser/fastos-api/pull/22); falta a conta no Fly.io e publicar |
 
 ### F0: base do projeto
 
@@ -141,6 +141,23 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 - **Cada pessoa faz login uma vez por rodada,** pela API, e o teste já começa com o token de renovação no navegador. A API aceita só 10 logins por minuto do mesmo IP, por isso os testes rodam um de cada vez.
 - **Encontrado no teste e corrigido:** o aviso "No `HydrateFallback` element provided" do React Router saía em toda tela do painel. O `hydrateFallbackElement: null` das rotas não conta como fallback; agora é um componente que não mostra nada, com o mesmo efeito na tela.
 
+### F7: deploy (em andamento)
+
+- **Feito pelo dono do projeto:** registrou o domínio `consertiva.com.br` e criou a conta no Cloudflare. Os servidores de DNS já são os do Cloudflare (em 2026-10-31, esperando o registro.br concluir a troca).
+- **Front no Cloudflare Workers,** só com os arquivos do build (`wrangler.jsonc`):
+  - o domínio principal é o site público;
+  - a rota `*.consertiva.com.br/*` serve todas as lojas;
+  - qualquer caminho que não é arquivo recebe o app, porque quem cuida das rotas é o React Router.
+  - Publica com `npm run deploy`, que gera o build com o `.env.production` (API em `https://api.consertiva.com.br`).
+- **Cabeçalhos de segurança** em `public/_headers`: `nosniff`, sem iframes, `Referrer-Policy` e `Permissions-Policy`. A política de conteúdo (CSP) só avisa por enquanto e passa a bloquear quando o primeiro deploy mostrar que nada a viola.
+- **Encontrado ao preparar e corrigido:** o zod compila os esquemas com `new Function`, que a CSP não permite. Agora todo arquivo pega o `z` de `src/lib/zod.ts`, que desliga isso antes de qualquer esquema existir, e o lint recusa importar o `zod` direto. Ligar a opção só no `main.tsx` não bastava: o build junta o zod e os primeiros esquemas num pedaço que roda antes.
+- **Testado localmente,** com o build de produção servido pelo `wrangler dev`:
+  - os caminhos das telas abrem o app;
+  - os cabeçalhos saem em todas as respostas;
+  - a validação do cadastro funciona;
+  - a CSP não acusa nada.
+- **A API (Dockerfile, `fly.toml`, segredos) e o passo a passo** estão no `fastos-api` (`docs/deploy.md`). O ensaio contra uma cópia do banco de produção passou.
+
 ## Mudanças na API
 
 | # | Mudança | Precisa para | Status |
@@ -152,7 +169,7 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | A5 | Código de erro nas respostas, para o front não depender do texto da mensagem | Opcional: hoje o cadastro separa "endereço em uso" de "e-mail em uso" pelo texto do 409 | Pendente |
 | A6 | Excluir cliente ou aparelho com OS responde 409, e não 500; excluir cliente sem OS leva os aparelhos junto | F2: sem isso, excluir quase qualquer cliente dava erro | Feito ([fastos-api #15](https://github.com/rafaelkremser/fastos-api/pull/15)) |
 | A7 | Rota pública que diz se uma loja existe (`GET /tenants/:slug`, com o nome da loja; 404 se não existe), com limite de tentativas | Login e "Acessar sua loja" avisarem "Loja não encontrada" e o login mostrar o nome da loja. Adiado: não é prioridade agora | Pendente |
-| A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Pendente |
+| A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Feito ([fastos-api #22](https://github.com/rafaelkremser/fastos-api/pull/22)) |
 | A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
 | A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Pendente |
 | A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Pendente |
@@ -178,7 +195,8 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 - **O e-mail diferencia maiúsculas no login e no cadastro** (A10): quem foi cadastrado como "Ana@loja.com" só entra digitando igual.
 - **Os tokens ficam no `localStorage`,** então um script injetado no site (XSS) conseguiria lê-los. É o mesmo débito do roadmap da API; a alternativa é o token de renovação num cookie que o JavaScript não lê.
 - **Sair só apaga os tokens deste navegador:** a API não revoga, então uma cópia do token de renovação vale até completar 7 dias do login (débito da API, P3-1).
-- **A CLI do shadcn traz 3 falhas de gravidade baixa,** no `deepmerge`. Ela fica nas dependências de desenvolvimento, e nada dela chega ao navegador: `npm audit --omit=dev` não acusa nada.
+- **A CLI do shadcn traz falhas conhecidas** no `deepmerge` (baixa) e no `minimatch` (moderada, pelo `ts-morph`). Ela fica nas dependências de desenvolvimento, e nada dela chega ao navegador: `npm audit --omit=dev` não acusa nada.
+- **Uma aba aberta durante um deploy pode não abrir uma tela nova:** cada tela carrega o próprio arquivo, e o deploy troca os nomes dos arquivos. A aba antiga pede um arquivo que não existe mais e cai na página de erro, e recarregar resolve. Dá para tratar mostrando "Há uma versão nova, recarregue" quando isso acontecer.
 - **Os testes de ponta a ponta só rodam nesta máquina:** precisam do CLI do Neon com login e da API na pasta ao lado. Para rodar no GitHub a cada PR, faltam uma chave do Neon nos segredos do repositório e o checkout dos dois repositórios.
 - **O front não testa o isolamento entre lojas por ID:** a tela não tem como pedir a OS de outra loja. Esse teste cabe aos testes de ponta a ponta da API (P2-5 no roadmap dela), que ainda não existem.
 - **Cada rodada dos testes de ponta a ponta compila a API,** apagando e refazendo o `dist` dela. Um `npm run dev` da API ligado continua funcionando, porque já carregou o código.
@@ -220,6 +238,10 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | 2026-10-30 | Testes de ponta a ponta contra a API e um banco reais, num branch do Neon criado e apagado a cada rodada | Decisão do dono do projeto. Pegam o que os testes unitários não pegam (CORS, subdomínio, renovação do token, as respostas de verdade) sem sujar o `dev`. Substitui o plano de usar o MSW no F6 | API simulada pelo Playwright ou pelo MSW; um branch fixo para os testes |
 | 2026-10-30 | Só o Chromium nos testes de ponta a ponta | É o motor do Chrome e do Edge; cada navegador a mais repetiria a rodada inteira | Firefox e WebKit |
 | 2026-10-30 | Deploy numa etapa própria (F7), separada dos testes | Depende de contratar a hospedagem e escolher o domínio, o que fica com o dono do projeto | Deixar o F6 aberto até o deploy |
+| 2026-10-31 | O produto passa a se chamar Consertiva, no domínio `consertiva.com.br` | O `fastos.com.br` tem dono desde dezembro de 2025, e "Fastos" já é um SaaS jurídico em espanhol (`fastos.app`). Como o domínio aparece no endereço de toda loja, ele precisava ser o nome do produto. "Consertiva" não aparece na busca de marcas do INPI, tem uma pronúncia só, e o `.com.br` e o `.com` estavam livres. As pastas e os repositórios continuam `fastos-api` e `fastos-web` | Manter FastOS com um domínio alternativo; AssistecApp ("assistec" tem 141 pedidos no INPI, inclusive de software, e o INPI vem negando o nome puro); Consertio (duas pronúncias possíveis); Bancadix e Bancadeiro |
+| 2026-10-31 | Front no Cloudflare Workers, só com os arquivos do build, e as lojas por uma rota curinga | Grátis, perto dos clientes, e aceita um subdomínio por loja com um registro curinga de DNS. O Cloudflare também cuida do DNS e do certificado | Cloudflare Pages, que não aceita domínio curinga; servir o front pelo Fly junto com a API |
+| 2026-10-31 | CSP só avisando no primeiro deploy, bloqueando depois | Uma CSP errada quebraria o site em produção sem nenhum teste ter visto. Avisando, o console mostra o que ela bloquearia | Bloquear desde o primeiro deploy; ficar sem CSP |
+| 2026-10-31 | O `z` sai de `src/lib/zod.ts`, com o `new Function` do zod desligado | Deixa a CSP bloquear `eval` sem quebrar os formulários; o lint impede importar o `zod` direto | Liberar `unsafe-eval` na CSP; ligar a opção só no `main.tsx`, que roda depois dos primeiros esquemas |
 | 2026-10-28 | Técnico escolhido entre os usuários ativos que não são atendentes | Em loja pequena o dono também conserta; o atendente não | Só quem tem o papel de técnico |
 | 2026-10-28 | O rodapé dos itens mostra o valor que vale no total (final, orçamento ou soma dos itens) | É a regra da API; sem isso, o total parece uma soma errada | Calcular o total no front |
 | 2026-10-28 | Datas sem hora (previsão, garantia) mostradas em UTC | A API guarda o dia à meia-noite UTC; no fuso do Brasil ele apareceria como o dia anterior | Mandar a data com fuso |

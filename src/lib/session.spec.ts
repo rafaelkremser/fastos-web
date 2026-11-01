@@ -15,7 +15,7 @@ describe('session', () => {
     startSession({ accessToken: 'access-1', refreshToken: 'refresh-1' })
 
     expect(getAccessToken()).toBe('access-1')
-    expect(localStorage.getItem('fastos-refresh-token')).toBe('refresh-1')
+    expect(localStorage.getItem('consertiva-refresh-token')).toBe('refresh-1')
     expect(hasSession()).toBe(true)
   })
 
@@ -46,10 +46,10 @@ describe('session', () => {
     subscribeToSession(listener)
 
     // What this tab sees when another tab of the same store signs out
-    localStorage.removeItem('fastos-refresh-token')
+    localStorage.removeItem('consertiva-refresh-token')
     window.dispatchEvent(
       new StorageEvent('storage', {
-        key: 'fastos-refresh-token',
+        key: 'consertiva-refresh-token',
         newValue: null,
       }),
     )

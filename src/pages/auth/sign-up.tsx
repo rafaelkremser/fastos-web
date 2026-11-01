@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { registerTenant } from '@/api/register-tenant'
 import { FormError } from '@/components/form-error'

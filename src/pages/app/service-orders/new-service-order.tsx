@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { createServiceOrder } from '@/api/create-service-order'
 import { fetchCustomerDevices } from '@/api/fetch-customer-devices'

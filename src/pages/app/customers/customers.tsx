@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { fetchCustomers } from '@/api/fetch-customers'
 import { PageTitle } from '@/components/page-title'

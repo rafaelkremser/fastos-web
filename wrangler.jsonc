@@ -1,0 +1,21 @@
+// The site on Cloudflare: only the files of npm run build, served from the
+// edge. The steps of the first deploy are in the API's docs/deploy.md
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "consertiva-web",
+  "compatibility_date": "2026-10-01",
+  // No usage data sent to Cloudflare from this machine
+  "send_metrics": false,
+  "assets": {
+    "directory": "./dist",
+    // React Router owns the paths, so any page that is not a file gets the app
+    "not_found_handling": "single-page-application",
+  },
+  "routes": [
+    // The public site, with the sign-up
+    { "pattern": "consertiva.com.br", "custom_domain": true },
+    // Every store, on its own subdomain. It needs the proxied wildcard DNS
+    // record; api.consertiva.com.br is not proxied, so it never comes here
+    { "pattern": "*.consertiva.com.br/*", "zone_name": "consertiva.com.br" },
+  ],
+}

@@ -4,7 +4,7 @@ import { Copy, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { createUser } from '@/api/create-user'
 import type { User, UserRole } from '@/api/types'

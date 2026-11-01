@@ -44,7 +44,7 @@ export function makePerson(name: string): Person {
 
   return {
     name: `${name} ${id}`,
-    email: `${id}@fastos.test`,
+    email: `${id}@consertiva.test`,
     password: `senha-${id}`,
   }
 }
@@ -64,7 +64,7 @@ export async function createStore(api: APIRequestContext): Promise<Store> {
       data: {
         tenantName: store.name,
         tenantSlug: store.slug,
-        tenantEmail: `contato-${id}@fastos.test`,
+        tenantEmail: `contato-${id}@consertiva.test`,
         tenantPhone: null,
         ownerName: store.owner.name,
         ownerEmail: store.owner.email,

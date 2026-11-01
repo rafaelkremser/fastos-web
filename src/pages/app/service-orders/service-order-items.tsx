@@ -4,7 +4,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { addServiceOrderItem } from '@/api/add-service-order-item'
 import { removeServiceOrderItem } from '@/api/remove-service-order-item'
