@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { fetchServiceOrders } from '@/api/fetch-service-orders'
 import type { ServiceOrderStatus } from '@/api/types'

@@ -42,6 +42,7 @@ As variáveis de ambiente de desenvolvimento ficam no `.env.development`, que é
 | `npm run format` | Formata o projeto com o Prettier |
 | `npm test` | Roda os testes em modo de observação; `npx vitest run` roda uma vez só |
 | `npm run test:e2e` | Roda os testes de ponta a ponta contra a API de verdade (veja abaixo) |
+| `npm run deploy` | Gera o build com o `.env.production` e publica no Cloudflare (veja "Produção") |
 
 ## Testes de ponta a ponta
 
@@ -58,6 +59,17 @@ Requisitos, além dos da API:
 - O navegador do Playwright, instalado uma vez com `npx playwright install chromium`.
 
 O que vem depois do `--` vai para o Playwright: `npm run test:e2e -- --headed` mostra o navegador, e `npm run test:e2e -- e2e/sign-up.spec.ts` roda um arquivo só. Quando um teste falha, o relatório fica em `playwright-report/` (`npx playwright show-report`), com o passo a passo de cada falha.
+
+## Produção
+
+O site roda no Cloudflare Workers, que serve só os arquivos do build: o domínio principal é o site público, e cada loja abre no próprio subdomínio (`loja.consertiva.com.br`).
+
+- **`wrangler.jsonc`:** as rotas (o domínio e o curinga das lojas) e o envio de qualquer página desconhecida para o app, porque quem cuida dos caminhos é o React Router.
+- **`.env.production`:** o endereço da API e o domínio, que entram no build. Não tem segredo, então fica no git.
+- **`public/_headers`:** os cabeçalhos de segurança. A política de conteúdo (CSP) só avisa por enquanto e passa a bloquear quando o primeiro deploy mostrar que nada a viola.
+- **Antes do primeiro `npm run deploy`:** um `npx wrangler login` nesta máquina.
+
+O passo a passo completo, com a API e o DNS, está no [`docs/deploy.md` da API](https://github.com/rafaelkremser/fastos-api/blob/main/docs/deploy.md).
 
 ## Stack
 

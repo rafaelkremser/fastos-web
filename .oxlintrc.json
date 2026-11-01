@@ -3,9 +3,26 @@
   "plugins": ["react", "typescript", "oxc"],
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "zod",
+            "message": "Import z from @/lib/zod, which turns off zod's new Function before any schema is created."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
+    {
+      "files": ["src/lib/zod.ts"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
     {
       "files": ["src/components/ui/**"],
       "rules": {

@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { changeServiceOrderStatus } from '@/api/change-service-order-status'
 import type { ServiceOrder, ServiceOrderStatus } from '@/api/types'

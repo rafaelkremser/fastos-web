@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
-import { z } from 'zod'
+import { z } from '@/lib/zod'
 
 import { signIn } from '@/api/sign-in'
 import { FormError } from '@/components/form-error'
