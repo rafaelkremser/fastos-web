@@ -16,14 +16,18 @@ import { useCurrentUser } from '@/hooks/use-current-user'
 import { useTeam } from '@/hooks/use-team'
 import { formatDate } from '@/lib/format'
 import { canCreateUsers } from '@/lib/permissions'
-import { ROLE_LABELS } from '@/lib/roles'
+import { canManageUser, ROLE_LABELS } from '@/lib/roles'
 
+import { TeamMemberActions } from './team-member-actions'
 import { UserDialog } from './user-dialog'
 
-// Everyone sees the team; owners and admins add people to it
+// Everyone sees the team; owners and admins add people to it, change their
+// roles and take their access away
 export function Team() {
   const { data: currentUser } = useCurrentUser()
   const { data: users } = useTeam()
+
+  const isManager = canCreateUsers(currentUser?.role)
 
   return (
     <>
@@ -32,7 +36,7 @@ export function Team() {
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-3xl font-bold tracking-tight">Equipe</h1>
 
-          {canCreateUsers(currentUser?.role) && (
+          {isManager && (
             <Dialog>
               <DialogTrigger asChild>
                 <Button>
@@ -51,17 +55,24 @@ export function Team() {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead className="hidden md:table-cell">E-mail</TableHead>
-                <TableHead className="w-[140px]">Papel</TableHead>
+                {/* No fixed width on phones, where the actions column too
+                    has to fit */}
+                <TableHead className="sm:w-[140px]">Papel</TableHead>
                 <TableHead className="hidden w-[120px] sm:table-cell">
                   Na equipe desde
                 </TableHead>
+                {isManager && (
+                  <TableHead className="w-[52px]">
+                    <span className="sr-only">Ações</span>
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
               {!users &&
                 Array.from({ length: 4 }, (_, index) => (
                   <TableRow key={index}>
-                    <TableCell colSpan={4}>
+                    <TableCell colSpan={isManager ? 5 : 4}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
                   </TableRow>
@@ -96,6 +107,16 @@ export function Team() {
                   <TableCell className="hidden text-muted-foreground sm:table-cell">
                     {formatDate(user.createdAt)}
                   </TableCell>
+                  {isManager && (
+                    <TableCell>
+                      {canManageUser(currentUser, user) && (
+                        <TeamMemberActions
+                          user={user}
+                          managerRole={currentUser?.role}
+                        />
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

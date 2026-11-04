@@ -18,6 +18,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F3 | Ordens de serviço: lista com filtros, abertura, detalhes, status, itens, histórico, edição e técnico | Feito ([PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F3.1 | Aviso ao cliente: marca e filtro na lista, registrar aviso na OS, atalho de WhatsApp com mensagem pronta | Feito (junto do F3, no [PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F4 | Equipe: listar e criar usuários | Feito ([PR #5](https://github.com/rafaelkremser/fastos-web/pull/5)) |
+| F4.1 | Equipe: desativar, reativar e mudar o papel | Feito (branch `feat/manage-users`) |
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
 | F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
 | F6 | Testes de ponta a ponta (Playwright) contra a API e um banco reais | Feito ([PR #8](https://github.com/rafaelkremser/fastos-web/pull/8)) |
@@ -98,6 +99,22 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 
   Agora o estado de cada diálogo fica dentro do `DialogContent`, que só existe com o diálogo aberto. Cada abertura começa do zero, e os diálogos de edição mostram os dados atuais. Dois testes cobrem o caso.
 
+### F4.1: desativar e mudar o papel
+
+- **Um menu em cada linha da equipe,** para dono e administrador, com "Mudar papel" e "Desativar acesso" (ou "Reativar acesso", para quem está inativo). Ele só aparece em quem a pessoa pode mexer, com a mesma regra da API:
+  - o dono mexe em administradores, técnicos e atendentes;
+  - o administrador, só em técnicos e atendentes;
+  - ninguém mexe no dono nem em si mesmo.
+- **Mudar papel:** um diálogo com os papéis que a pessoa pode dar. Avisa que o papel novo vale em até 15 minutos, quando a loja da pessoa renovar o acesso.
+- **Desativar pede confirmação,** que explica que a pessoa não entra mais, que quem já estiver com a loja aberta sai em até 15 minutos, e que as OS e o histórico continuam. Se a API recusar, o diálogo fica aberto com o erro. Reativar é direto, sem confirmação.
+- **A lista e os técnicos das OS atualizam na hora:** quem foi desativado some da escolha de técnico.
+- **Testado contra a API real,** com a loja demo num banco temporário:
+  - o dono trocou o papel do Carlos para atendente;
+  - desativou a Ana, e o login dela passou a ser recusado (401);
+  - reativou a Ana;
+  - a tela foi conferida no celular.
+- **Encontrado no teste e corrigido:** no celular, a coluna nova deixava a tabela 8 px mais larga que o cartão; a coluna "Papel" perdeu a largura fixa abaixo de 640 px. No menu, os itens quebravam em duas linhas; ele ficou mais largo.
+
 ### F5: dashboard
 
 - **Início** (`/`, onde o painel abre agora, com link "Início" no cabeçalho):
@@ -172,7 +189,7 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Feito ([fastos-api #22](https://github.com/rafaelkremser/fastos-api/pull/22)) |
 | A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
 | A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Pendente |
-| A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Pendente |
+| A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Feito na API (branch `feat/manage-users` do `fastos-api`); tela no F4.1 |
 | A13 | Métricas por técnico (`GET /metrics/technicians`) e tempo em cada etapa (`GET /metrics/stage-times`), só para dono e administrador | F5.1 | Feito ([fastos-api #21](https://github.com/rafaelkremser/fastos-api/pull/21)) |
 | A9 | Aviso ao cliente: a OS guarda quando a loja avisou o cliente, mudar o status apaga, `POST /service-orders/:id/notices` registra (com canal e observação, no histórico) e a lista filtra `needsCustomerNotice` | F3.1: marca "Avisar cliente", filtro "Precisa avisar", botão de registrar aviso e atalho de WhatsApp | Feito ([fastos-api #19](https://github.com/rafaelkremser/fastos-api/pull/19)); front no F3.1 |
 
@@ -191,7 +208,7 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 - **O cadastro separa os dois 409 pelo texto da mensagem da API** ("address"). Se a mensagem mudar, o erro de endereço passa a aparecer no campo de e-mail. O A5 resolve.
 - **O front não sabe se a loja existe:** qualquer subdomínio abre um login, e um endereço digitado errado (no navegador ou no "Acessar sua loja") só descobre o erro ao tentar entrar, com "e-mail ou senha incorretos". O A7 resolve; adiado por decisão do dono do projeto.
 - **A senha de quem entra na equipe é definida por quem cria,** e a pessoa não tem como trocá-la (A11). O ideal, mais adiante, é um convite por e-mail em que a própria pessoa escolhe a senha.
-- **Não dá para tirar alguém da equipe nem mudar o papel** pela tela, porque a API não tem essas rotas (A12).
+- **Desativar alguém ou mudar o papel leva até 15 minutos para valer** para quem já está com a loja aberta, o tempo do token de acesso (débito da API).
 - **O e-mail diferencia maiúsculas no login e no cadastro** (A10): quem foi cadastrado como "Ana@loja.com" só entra digitando igual.
 - **Os tokens ficam no `localStorage`,** então um script injetado no site (XSS) conseguiria lê-los. É o mesmo débito do roadmap da API; a alternativa é o token de renovação num cookie que o JavaScript não lê.
 - **Sair só apaga os tokens deste navegador:** a API não revoga, então uma cópia do token de renovação vale até completar 7 dias do login (débito da API, P3-1).
