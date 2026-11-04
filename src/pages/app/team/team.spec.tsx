@@ -1,9 +1,11 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { changeUserRole } from '@/api/change-user-role'
 import { createUser } from '@/api/create-user'
 import { fetchUsers } from '@/api/fetch-users'
 import { getUser } from '@/api/get-user'
+import { setUserActive } from '@/api/set-user-active'
 import type { UserRole } from '@/api/types'
 
 import { apiError } from '../../../../test/api-error'
@@ -11,7 +13,9 @@ import { makeUser } from '../../../../test/factories'
 import { renderWithProviders } from '../../../../test/render-with-providers'
 import { Team } from './team'
 
+vi.mock('@/api/change-user-role', () => ({ changeUserRole: vi.fn() }))
 vi.mock('@/api/create-user', () => ({ createUser: vi.fn() }))
+vi.mock('@/api/set-user-active', () => ({ setUserActive: vi.fn() }))
 vi.mock('@/api/fetch-users', () => ({ fetchUsers: vi.fn() }))
 vi.mock('@/api/get-user', () => ({ getUser: vi.fn() }))
 
@@ -148,5 +152,137 @@ describe('Team', () => {
     expect(
       await dialog.findByText('Já existe alguém com esse e-mail na loja.'),
     ).toBeInTheDocument()
+  })
+
+  describe('managing someone', () => {
+    async function openActions(name: string) {
+      const user = userEvent.setup()
+      await user.click(
+        await screen.findByRole('button', { name: `Ações para ${name}` }),
+      )
+
+      return user
+    }
+
+    it('should offer it only for whom the person looking may manage', async () => {
+      vi.mocked(fetchUsers).mockResolvedValue([
+        makeUser({ id: 'a2', name: 'Bruna Admin', role: 'ADMIN' }),
+        makeUser({ id: 't1', name: 'Carlos Técnico', role: 'TECHNICIAN' }),
+        makeUser({ id: 'u1', name: 'Diego Admin', role: 'ADMIN' }),
+        makeUser({ id: 'o1', name: 'Rafaela Dona', role: 'OWNER' }),
+      ])
+      renderAs('ADMIN')
+
+      expect(
+        await screen.findByRole('button', {
+          name: 'Ações para Carlos Técnico',
+        }),
+      ).toBeInTheDocument()
+      // Not another admin, the owner or oneself
+      for (const name of ['Bruna Admin', 'Rafaela Dona', 'Diego Admin']) {
+        expect(
+          screen.queryByRole('button', { name: `Ações para ${name}` }),
+        ).toBeNull()
+      }
+    })
+
+    it('should not offer it to technicians and receptionists', async () => {
+      renderAs('RECEPTIONIST')
+      await screen.findByText('Carlos Técnico')
+
+      expect(screen.queryByRole('button', { name: /^Ações para/ })).toBeNull()
+    })
+
+    it('should change the role', async () => {
+      vi.mocked(changeUserRole).mockResolvedValue(
+        makeUser({ id: 't1', role: 'RECEPTIONIST' }),
+      )
+      renderAs('OWNER')
+      const user = await openActions('Carlos Técnico')
+
+      await user.click(screen.getByRole('menuitem', { name: 'Mudar papel' }))
+      const dialog = within(screen.getByRole('dialog'))
+      await user.click(dialog.getByRole('combobox', { name: 'Papel' }))
+      expect(
+        screen.getAllByRole('option').map((option) => option.textContent),
+      ).toEqual(['Administrador', 'Técnico', 'Atendente'])
+      await user.click(screen.getByRole('option', { name: 'Atendente' }))
+      await user.click(dialog.getByRole('button', { name: 'Salvar' }))
+
+      expect(changeUserRole).toHaveBeenCalledWith(
+        { userId: 't1', role: 'RECEPTIONIST' },
+        expect.anything(),
+      )
+      expect(
+        await screen.findByText('Carlos Técnico agora é atendente.'),
+      ).toBeInTheDocument()
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(fetchUsers).toHaveBeenCalledTimes(2)
+    })
+
+    it('should ask before taking the access away', async () => {
+      vi.mocked(setUserActive).mockResolvedValue(
+        makeUser({ id: 't1', isActive: false }),
+      )
+      renderAs('OWNER')
+      const user = await openActions('Carlos Técnico')
+
+      await user.click(
+        screen.getByRole('menuitem', { name: 'Desativar acesso' }),
+      )
+      const confirm = within(screen.getByRole('alertdialog'))
+      expect(confirm.getByText('Desativar Carlos Técnico?')).toBeInTheDocument()
+      expect(setUserActive).not.toHaveBeenCalled()
+
+      await user.click(confirm.getByRole('button', { name: 'Desativar' }))
+
+      expect(setUserActive).toHaveBeenCalledWith(
+        { userId: 't1', isActive: false },
+        expect.anything(),
+      )
+      expect(
+        await screen.findByText('Carlos Técnico não tem mais acesso à loja.'),
+      ).toBeInTheDocument()
+    })
+
+    it('should keep the question open when the API refuses', async () => {
+      vi.mocked(setUserActive).mockRejectedValue(apiError(403))
+      renderAs('OWNER')
+      const user = await openActions('Carlos Técnico')
+
+      await user.click(
+        screen.getByRole('menuitem', { name: 'Desativar acesso' }),
+      )
+      await user.click(
+        within(screen.getByRole('alertdialog')).getByRole('button', {
+          name: 'Desativar',
+        }),
+      )
+
+      expect(
+        await screen.findByText('Você não pode mudar o acesso dessa pessoa.'),
+      ).toBeInTheDocument()
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+    })
+
+    it('should give the access back without asking', async () => {
+      vi.mocked(setUserActive).mockResolvedValue(
+        makeUser({ id: 'u2', isActive: true }),
+      )
+      renderAs('OWNER')
+      const user = await openActions('Ana Antiga')
+
+      await user.click(
+        screen.getByRole('menuitem', { name: 'Reativar acesso' }),
+      )
+
+      expect(setUserActive).toHaveBeenCalledWith(
+        { userId: 'u2', isActive: true },
+        expect.anything(),
+      )
+      expect(
+        await screen.findByText('Ana Antiga voltou a ter acesso à loja.'),
+      ).toBeInTheDocument()
+    })
   })
 })
