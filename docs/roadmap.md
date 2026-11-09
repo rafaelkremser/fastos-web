@@ -135,6 +135,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 - **Gráfico feito à mão,** sem biblioteca: uma barra por dia, valor e entregas ao passar o mouse ou focar pelo teclado (as setas andam entre os dias, e o gráfico é uma parada só de Tab), escala com três valores e a tabela "Ver os números" com tudo. O azul das barras foi conferido contra o fundo dos dois temas.
 - **Cabeçalho:** com quatro links, os nomes só aparecem a partir de 1024 px; abaixo disso, só os ícones. Em 640–1023 px os nomes quebravam linha ou empurravam o menu da loja.
 - **Testado contra a API real,** pelo front da 5173, com entregas espalhadas num branch temporário: os números bateram com a conta feita à mão, a dica do gráfico, a tabela, os dois temas, celular, tablet e o técnico vendo só a operação (sem nem pedir o faturamento).
+- **Corrigido em 2026-11-09, a pedido do dono do projeto:** em telas a partir de 1024 px, abrir "Ver os números" esticava os cartões de faturamento e entregas até a altura da tabela (de 171 para 624 px cada). Agora, com a tabela aberta, eles ficam no tamanho natural; com ela fechada, continuam acompanhando a altura do gráfico.
 
 ### F5.1: por técnico e por etapa
 
