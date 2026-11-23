@@ -115,7 +115,9 @@ export function Dashboard() {
         </div>
 
         {showRevenue && (
-          <div className="grid gap-4 lg:grid-cols-3">
+          // The cards match the chart's height, but not while its table of
+          // numbers is open, which would stretch them far down
+          <div className="grid gap-4 lg:grid-cols-3 lg:has-[details[open]]:items-start">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <MetricCard
                 title="Faturamento do mês"

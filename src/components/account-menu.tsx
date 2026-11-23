@@ -1,12 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, LogOut } from 'lucide-react'
+import { ChevronDown, KeyRound, LogOut } from 'lucide-react'
+import { useState } from 'react'
 
 import { getTenant } from '@/api/get-tenant'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { ROLE_LABELS } from '@/lib/roles'
 import { endSession } from '@/lib/session'
 
+import { ChangePasswordDialog } from './change-password-dialog'
 import { Button } from './ui/button'
+import { Dialog } from './ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +31,9 @@ export function AccountMenu() {
 
   const { data: user, isLoading: isLoadingUser } = useCurrentUser()
 
+  // The menu closes as it opens the dialog, so the dialog lives outside it
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+
   // The API keeps no session to close, so signing out is forgetting the
   // tokens. The panel then sends the person to the sign-in page
   function handleSignOut() {
@@ -36,49 +42,60 @@ export function AccountMenu() {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="flex min-w-0 items-center gap-2 select-none"
-        >
-          {isLoadingTenant ? (
-            <Skeleton className="h-4 w-24 sm:w-40" />
-          ) : (
-            <span className="max-w-32 truncate sm:max-w-60">
-              {tenant?.name}
-            </span>
-          )}
-          <ChevronDown className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="flex flex-col">
-          {isLoadingUser ? (
-            <div className="space-y-1.5">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-24" />
-            </div>
-          ) : (
-            user && (
-              <>
-                <span>{user.name}</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {user.email}
-                </span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {ROLE_LABELS[user.role]}
-                </span>
-              </>
-            )
-          )}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onSelect={handleSignOut}>
-          <LogOut />
-          <span>Sair</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      {/* Not modal, so the dialog it opens takes the focus cleanly */}
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="flex min-w-0 items-center gap-2 select-none"
+          >
+            {isLoadingTenant ? (
+              <Skeleton className="h-4 w-24 sm:w-40" />
+            ) : (
+              <span className="max-w-32 truncate sm:max-w-60">
+                {tenant?.name}
+              </span>
+            )}
+            <ChevronDown className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel className="flex flex-col">
+            {isLoadingUser ? (
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            ) : (
+              user && (
+                <>
+                  <span>{user.name}</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {user.email}
+                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {ROLE_LABELS[user.role]}
+                  </span>
+                </>
+              )
+            )}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setIsChangingPassword(true)}>
+            <KeyRound />
+            <span>Trocar senha</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem variant="destructive" onSelect={handleSignOut}>
+            <LogOut />
+            <span>Sair</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={isChangingPassword} onOpenChange={setIsChangingPassword}>
+        <ChangePasswordDialog onDone={() => setIsChangingPassword(false)} />
+      </Dialog>
+    </>
   )
 }

@@ -18,7 +18,8 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F3 | Ordens de serviço: lista com filtros, abertura, detalhes, status, itens, histórico, edição e técnico | Feito ([PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F3.1 | Aviso ao cliente: marca e filtro na lista, registrar aviso na OS, atalho de WhatsApp com mensagem pronta | Feito (junto do F3, no [PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F4 | Equipe: listar e criar usuários | Feito ([PR #5](https://github.com/rafaelkremser/fastos-web/pull/5)) |
-| F4.1 | Equipe: desativar, reativar e mudar o papel | Feito (branch `feat/manage-users`) |
+| F4.1 | Equipe: desativar, reativar e mudar o papel | Feito ([PR #10](https://github.com/rafaelkremser/fastos-web/pull/10)) |
+| F4.2 | Trocar a própria senha | Feito (branch `feat/passwords`) |
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
 | F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
 | F6 | Testes de ponta a ponta (Playwright) contra a API e um banco reais | Feito ([PR #8](https://github.com/rafaelkremser/fastos-web/pull/8)) |
@@ -115,6 +116,16 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
   - a tela foi conferida no celular.
 - **Encontrado no teste e corrigido:** no celular, a coluna nova deixava a tabela 8 px mais larga que o cartão; a coluna "Papel" perdeu a largura fixa abaixo de 640 px. No menu, os itens quebravam em duas linhas; ele ficou mais largo.
 
+### F4.2: trocar a própria senha
+
+- **"Trocar senha" no menu da conta,** para todos os papéis: senha atual, nova senha (mínimo de 6 caracteres) e a repetição da nova, conferida antes de enviar. O diálogo avisa que quem estiver com a loja aberta em outro aparelho continua conectado até a sessão vencer.
+- **Senha atual errada aparece no próprio campo,** e a sessão continua: a API responde 403, e não 401, que o front entenderia como token vencido.
+- **Quem esqueceu a senha** pede à equipe da Consertiva, que gera uma temporária por comando na API (`users:reset-password`). A pessoa entra com ela e troca por aqui.
+- **Testado contra a API real,** com a loja demo num banco temporário:
+  - senha atual errada recusada no campo;
+  - depois da troca, a antiga recusada e a nova aceita;
+  - a senha temporária do comando de redefinir funcionando.
+
 ### F5: dashboard
 
 - **Início** (`/`, onde o painel abre agora, com link "Início" no cabeçalho):
@@ -124,6 +135,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 - **Gráfico feito à mão,** sem biblioteca: uma barra por dia, valor e entregas ao passar o mouse ou focar pelo teclado (as setas andam entre os dias, e o gráfico é uma parada só de Tab), escala com três valores e a tabela "Ver os números" com tudo. O azul das barras foi conferido contra o fundo dos dois temas.
 - **Cabeçalho:** com quatro links, os nomes só aparecem a partir de 1024 px; abaixo disso, só os ícones. Em 640–1023 px os nomes quebravam linha ou empurravam o menu da loja.
 - **Testado contra a API real,** pelo front da 5173, com entregas espalhadas num branch temporário: os números bateram com a conta feita à mão, a dica do gráfico, a tabela, os dois temas, celular, tablet e o técnico vendo só a operação (sem nem pedir o faturamento).
+- **Corrigido em 2026-11-09, a pedido do dono do projeto:** em telas a partir de 1024 px, abrir "Ver os números" esticava os cartões de faturamento e entregas até a altura da tabela (de 171 para 624 px cada). Agora, com a tabela aberta, eles ficam no tamanho natural; com ela fechada, continuam acompanhando a altura do gráfico.
 
 ### F5.1: por técnico e por etapa
 
@@ -188,8 +200,8 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | A7 | Rota pública que diz se uma loja existe (`GET /tenants/:slug`, com o nome da loja; 404 se não existe), com limite de tentativas | Login e "Acessar sua loja" avisarem "Loja não encontrada" e o login mostrar o nome da loja. Adiado: não é prioridade agora | Pendente |
 | A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Feito ([fastos-api #22](https://github.com/rafaelkremser/fastos-api/pull/22)) |
 | A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
-| A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Pendente |
-| A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Feito na API (branch `feat/manage-users` do `fastos-api`); tela no F4.1 |
+| A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Feito na API (branch `feat/passwords` do `fastos-api`); tela no F4.2 |
+| A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Feito ([fastos-api #25](https://github.com/rafaelkremser/fastos-api/pull/25)); tela no F4.1 |
 | A13 | Métricas por técnico (`GET /metrics/technicians`) e tempo em cada etapa (`GET /metrics/stage-times`), só para dono e administrador | F5.1 | Feito ([fastos-api #21](https://github.com/rafaelkremser/fastos-api/pull/21)) |
 | A9 | Aviso ao cliente: a OS guarda quando a loja avisou o cliente, mudar o status apaga, `POST /service-orders/:id/notices` registra (com canal e observação, no histórico) e a lista filtra `needsCustomerNotice` | F3.1: marca "Avisar cliente", filtro "Precisa avisar", botão de registrar aviso e atalho de WhatsApp | Feito ([fastos-api #19](https://github.com/rafaelkremser/fastos-api/pull/19)); front no F3.1 |
 
@@ -207,7 +219,8 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 - **Telefones salvos por outros meios** com pontuação, como "(11) 98765-4321", não batem com a verificação de repetido, que compara o texto. O front sempre envia só os números.
 - **O cadastro separa os dois 409 pelo texto da mensagem da API** ("address"). Se a mensagem mudar, o erro de endereço passa a aparecer no campo de e-mail. O A5 resolve.
 - **O front não sabe se a loja existe:** qualquer subdomínio abre um login, e um endereço digitado errado (no navegador ou no "Acessar sua loja") só descobre o erro ao tentar entrar, com "e-mail ou senha incorretos". O A7 resolve; adiado por decisão do dono do projeto.
-- **A senha de quem entra na equipe é definida por quem cria,** e a pessoa não tem como trocá-la (A11). O ideal, mais adiante, é um convite por e-mail em que a própria pessoa escolhe a senha.
+- **A senha de quem entra na equipe é definida por quem cria;** a pessoa troca depois em "Trocar senha". O ideal, mais adiante, é um convite por e-mail em que a própria pessoa escolhe a senha.
+- **Não há "esqueci minha senha" na tela:** quem esquece pede à equipe da Consertiva, que redefine por comando. O fluxo por e-mail depende de envio de e-mail na API.
 - **Desativar alguém ou mudar o papel leva até 15 minutos para valer** para quem já está com a loja aberta, o tempo do token de acesso (débito da API).
 - **O e-mail diferencia maiúsculas no login e no cadastro** (A10): quem foi cadastrado como "Ana@loja.com" só entra digitando igual.
 - **Os tokens ficam no `localStorage`,** então um script injetado no site (XSS) conseguiria lê-los. É o mesmo débito do roadmap da API; a alternativa é o token de renovação num cookie que o JavaScript não lê.
