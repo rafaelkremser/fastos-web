@@ -19,7 +19,7 @@ O projeto parte do `pizza-shop`, um projeto de escola com React, shadcn e TanSta
 | F3.1 | Aviso ao cliente: marca e filtro na lista, registrar aviso na OS, atalho de WhatsApp com mensagem pronta | Feito (junto do F3, no [PR #4](https://github.com/rafaelkremser/fastos-web/pull/4)) |
 | F4 | Equipe: listar e criar usuários | Feito ([PR #5](https://github.com/rafaelkremser/fastos-web/pull/5)) |
 | F4.1 | Equipe: desativar, reativar e mudar o papel | Feito ([PR #10](https://github.com/rafaelkremser/fastos-web/pull/10)) |
-| F4.2 | Trocar a própria senha | Feito (branch `feat/passwords`) |
+| F4.2 | Trocar a própria senha | Feito ([PR #11](https://github.com/rafaelkremser/fastos-web/pull/11)) |
 | F5 | Dashboard | Feito ([PR #6](https://github.com/rafaelkremser/fastos-web/pull/6)) |
 | F5.1 | Métricas por técnico e tempo em cada etapa, só para dono e administrador | Feito ([PR #7](https://github.com/rafaelkremser/fastos-web/pull/7)) |
 | F6 | Testes de ponta a ponta (Playwright) contra a API e um banco reais | Feito ([PR #8](https://github.com/rafaelkremser/fastos-web/pull/8)) |
@@ -199,8 +199,8 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 | A6 | Excluir cliente ou aparelho com OS responde 409, e não 500; excluir cliente sem OS leva os aparelhos junto | F2: sem isso, excluir quase qualquer cliente dava erro | Feito ([fastos-api #15](https://github.com/rafaelkremser/fastos-api/pull/15)) |
 | A7 | Rota pública que diz se uma loja existe (`GET /tenants/:slug`, com o nome da loja; 404 se não existe), com limite de tentativas | Login e "Acessar sua loja" avisarem "Loja não encontrada" e o login mostrar o nome da loja. Adiado: não é prioridade agora | Pendente |
 | A8 | Editar a OS não aceitar `technicianId`: hoje o técnico (que pode editar) consegue se atribuir por ali, sem passar pela rota de atribuição, que é só de dono e administrador, e sem registro no histórico | Fechar a brecha de papéis; o front já não envia esse campo | Feito ([fastos-api #22](https://github.com/rafaelkremser/fastos-api/pull/22)) |
-| A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Pendente |
-| A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Feito na API (branch `feat/passwords` do `fastos-api`); tela no F4.2 |
+| A10 | E-mail sem diferença entre maiúsculas e minúsculas: guardar em minúsculas no cadastro da loja, na criação de usuário e no login, convertendo os que já existem | Hoje "Ana@loja.com" e "ana@loja.com" são duas pessoas, e o login só entra com o e-mail escrito igual ao cadastro | Feito na API (branch `feat/email-case` do `fastos-api`); o front não muda |
+| A11 | Trocar a própria senha | Hoje a senha é a que o dono ou administrador definiu, e a pessoa não consegue trocá-la | Feito ([fastos-api #26](https://github.com/rafaelkremser/fastos-api/pull/26)); tela no F4.2 |
 | A12 | Desativar um usuário e mudar o papel dele | Hoje não há como tirar alguém da loja; a tela da equipe já mostra "Inativo" | Feito ([fastos-api #25](https://github.com/rafaelkremser/fastos-api/pull/25)); tela no F4.1 |
 | A13 | Métricas por técnico (`GET /metrics/technicians`) e tempo em cada etapa (`GET /metrics/stage-times`), só para dono e administrador | F5.1 | Feito ([fastos-api #21](https://github.com/rafaelkremser/fastos-api/pull/21)) |
 | A9 | Aviso ao cliente: a OS guarda quando a loja avisou o cliente, mudar o status apaga, `POST /service-orders/:id/notices` registra (com canal e observação, no histórico) e a lista filtra `needsCustomerNotice` | F3.1: marca "Avisar cliente", filtro "Precisa avisar", botão de registrar aviso e atalho de WhatsApp | Feito ([fastos-api #19](https://github.com/rafaelkremser/fastos-api/pull/19)); front no F3.1 |
@@ -222,13 +222,12 @@ Pedido do dono do projeto em 2026-10-30. Tudo só para dono e administrador: o t
 - **A senha de quem entra na equipe é definida por quem cria;** a pessoa troca depois em "Trocar senha". O ideal, mais adiante, é um convite por e-mail em que a própria pessoa escolhe a senha.
 - **Não há "esqueci minha senha" na tela:** quem esquece pede à equipe da Consertiva, que redefine por comando. O fluxo por e-mail depende de envio de e-mail na API.
 - **Desativar alguém ou mudar o papel leva até 15 minutos para valer** para quem já está com a loja aberta, o tempo do token de acesso (débito da API).
-- **O e-mail diferencia maiúsculas no login e no cadastro** (A10): quem foi cadastrado como "Ana@loja.com" só entra digitando igual.
 - **Os tokens ficam no `localStorage`,** então um script injetado no site (XSS) conseguiria lê-los. É o mesmo débito do roadmap da API; a alternativa é o token de renovação num cookie que o JavaScript não lê.
 - **Sair só apaga os tokens deste navegador:** a API não revoga, então uma cópia do token de renovação vale até completar 7 dias do login (débito da API, P3-1).
 - **A CLI do shadcn traz falhas conhecidas** no `deepmerge` (baixa) e no `minimatch` (moderada, pelo `ts-morph`). Ela fica nas dependências de desenvolvimento, e nada dela chega ao navegador: `npm audit --omit=dev` não acusa nada.
 - **Uma aba aberta durante um deploy pode não abrir uma tela nova:** cada tela carrega o próprio arquivo, e o deploy troca os nomes dos arquivos. A aba antiga pede um arquivo que não existe mais e cai na página de erro, e recarregar resolve. Dá para tratar mostrando "Há uma versão nova, recarregue" quando isso acontecer.
 - **Os testes de ponta a ponta só rodam nesta máquina:** precisam do CLI do Neon com login e da API na pasta ao lado. Para rodar no GitHub a cada PR, faltam uma chave do Neon nos segredos do repositório e o checkout dos dois repositórios.
-- **O front não testa o isolamento entre lojas por ID:** a tela não tem como pedir a OS de outra loja. Esse teste cabe aos testes de ponta a ponta da API (P2-5 no roadmap dela), que ainda não existem.
+- **O front não testa o isolamento entre lojas por ID:** a tela não tem como pedir a OS de outra loja. Esse teste cabe aos testes de ponta a ponta da API (P2-5 no roadmap dela), que o fazem desde o [fastos-api #24](https://github.com/rafaelkremser/fastos-api/pull/24).
 - **Cada rodada dos testes de ponta a ponta compila a API,** apagando e refazendo o `dist` dela. Um `npm run dev` da API ligado continua funcionando, porque já carregou o código.
 
 ## Decisões
